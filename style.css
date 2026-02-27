@@ -1,0 +1,918 @@
+/* --- CSS Variables for Theming (Combined from both files) --- */
+:root {
+  /* Element Bingo Caller colors */
+  --alkali-color: #f8ab92;
+  /* Alkali Metals */
+  --alkaline-earth-color: #fed091;
+  /* Alkaline Earth Metals */
+  --transition-color: #f7f29a;
+  /* Transition Metals */
+  --basic-metal-color: #aad69b;
+  /* Basic (Post-Transition) Metals */
+  --metalloid-color: #aadee7;
+  /* Metalloids */
+  --nonmetal-color: #a1acd7;
+  /* Nonmetals */
+  --halogen-color: #b09cca;
+  /* Halogens */
+  --noble-gas-color: #cda2ca;
+  /* Noble Gases */
+  --lanthanide-color: #ea9cc4;
+  /* Lanthanides */
+  --actinide-color: #e1aacd;
+  /* Actinides */
+
+  --bg-color: #f0f0f0;
+  --text-color: #333;
+
+  /* Card Generator colors */
+  --font-family-main: 'Poppins', Arial, sans-serif;
+  --primary-color: #007bff;
+  --secondary-color: #6c757d;
+  --light-gray: #f8f9fa;
+  --medium-gray: #dee2e6;
+  --dark-gray: #343a40;
+  --border-color: #ced4da;
+  --border-radius: 0.375rem;
+  /* 6px - Used for screen and now print */
+  --spacing-unit: 1rem;
+  --card-border-color: #adb5bd;
+  --card-header-bg: #e9ecef;
+  --free-cell-bg: #f8f9fa;
+}
+
+/* --- Global Styles (from ElementBingo.html) --- */
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  background: var(--bg-color);
+  color: var(--text-color);
+  overflow-x: hidden;
+  /* Prevent horizontal scroll due to menu */
+}
+
+/* --- Hamburger Menu Styles --- */
+.menu-button {
+  background: none;
+  border: none;
+  font-size: 30px;
+  cursor: pointer;
+  padding: 5px 10px;
+  color: var(--text-color);
+  z-index: 11;
+  /* Still keep z-index for overlay */
+}
+
+.menu-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: flex-start;
+  align-items: flex-start;
+  z-index: 999;
+  visibility: hidden;
+  opacity: 0;
+  transition: opacity 0.3s, visibility 0.3s;
+}
+
+.menu-overlay.open {
+  visibility: visible;
+  opacity: 1;
+}
+
+.menu-content {
+  background: #fff;
+  padding: 20px;
+  width: 250px;
+  height: 100%;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2);
+  transform: translateX(-100%);
+  transition: transform 0.3s ease-out;
+  display: flex;
+  flex-direction: column;
+}
+
+.menu-overlay.open .menu-content {
+  transform: translateX(0);
+}
+
+.menu-content button {
+  display: block;
+  width: 100%;
+  padding: 15px 10px;
+  margin-bottom: 10px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 18px;
+  text-align: left;
+}
+
+.menu-content button:hover {
+  background-color: #45a049;
+}
+
+.menu-close {
+  background: none;
+  border: none;
+  font-size: 30px;
+  color: #333;
+  cursor: pointer;
+  align-self: flex-end;
+  margin-bottom: 20px;
+}
+
+/* --- Element Bingo Caller Styles (from ElementBingo.html) --- */
+.bingo-caller-page {
+  display: block;
+  /* Initially visible */
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  /* Distribute items with space between them */
+  align-items: center;
+  /* Vertically center items */
+  background: #ffffff;
+  padding: 20px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  position: relative;
+  /* Keep relative for z-index if needed, but not for child positioning */
+  top: 0;
+  z-index: 10;
+}
+
+.header-buttons {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.header-buttons button,
+.header-buttons select {
+  font-size: 18px;
+  padding: 8px 16px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.header-buttons button:hover,
+.header-buttons select:hover {
+  background-color: #45a049;
+}
+
+.current {
+  font-size: 48px;
+  font-weight: bold;
+  color: var(--text-color);
+  text-align: center;
+  /* Center the text within this flex item */
+  white-space: nowrap;
+  /* Prevent text wrapping */
+  flex-grow: 1;
+  /* Allow it to grow and take available space */
+  margin: 0 auto;
+  /* This will center it within the available flex space */
+}
+
+/* Main layout: two columns */
+.main {
+  display: flex;
+  align-items: flex-start;
+  margin: 20px;
+  gap: 20px;
+}
+
+/* Table wrapper: shrink-to-fit table and legend */
+.table-wrapper {
+  display: inline-block;
+  vertical-align: top;
+}
+
+.table-container {
+  overflow-x: auto;
+}
+
+table.periodic-table {
+  border-collapse: collapse;
+  margin: 0 auto;
+  background: white;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Family color classes */
+td.alkali {
+  background-color: var(--alkali-color);
+}
+
+td.alkaline-earth {
+  background-color: var(--alkaline-earth-color);
+}
+
+td.transition {
+  background-color: var(--transition-color);
+}
+
+td.basic-metal {
+  background-color: var(--basic-metal-color);
+}
+
+td.metalloid {
+  background-color: var(--metalloid-color);
+}
+
+td.nonmetal {
+  background-color: var(--nonmetal-color);
+}
+
+td.halogen {
+  background-color: var(--halogen-color);
+}
+
+td.noble {
+  background-color: var(--noble-gas-color);
+}
+
+td.lanthanide {
+  background-color: var(--lanthanide-color);
+}
+
+td.actinide {
+  background-color: var(--actinide-color);
+}
+
+table.periodic-table td {
+  width: 42px;
+  height: 42px;
+  text-align: center;
+  vertical-align: middle;
+  border: 1px solid transparent;
+  position: relative;
+  font-size: 12px;
+  cursor: pointer;
+  transition: transform 0.2s;
+  box-sizing: border-box;
+}
+
+.table-container {
+  overflow-x: hidden;
+  overflow-y: hidden;
+}
+
+table.periodic-table td:hover {
+  transform: scale(1.1);
+}
+
+table.periodic-table td.empty {
+  border: none;
+  cursor: default;
+}
+
+table.periodic-table td.label {
+  background-color: #e0e0e0;
+  text-align: left;
+  padding-left: 4px;
+  font-weight: bold;
+  cursor: default;
+}
+
+table.periodic-table td span.symbol {
+  display: block;
+  font-size: 10px;
+}
+
+table.periodic-table td span.atomic {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  font-size: 10px;
+  color: #555;
+}
+
+/* Called/current indicators: use a black border with white cell */
+table.periodic-table td.called,
+table.periodic-table td.current {
+  border-color: black;
+  background-color: white;
+}
+
+/* Legend styles using CSS Grid */
+.legend {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 10px;
+  width: 100%;
+  box-sizing: border-box;
+  margin: 20px auto 0;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  padding: 5px 10px;
+  border-radius: 20px;
+  background: #e0e0e0;
+  font-size: 11px;
+}
+
+.legend-color {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  display: inline-block;
+  margin-right: 8px;
+}
+
+.legend-color.alkali {
+  background-color: var(--alkali-color);
+}
+
+.legend-color.alkaline-earth {
+  background-color: var(--alkaline-earth-color);
+}
+
+.legend-color.transition {
+  background-color: var(--transition-color);
+}
+
+.legend-color.basic-metal {
+  background-color: var(--basic-metal-color);
+}
+
+.legend-color.metalloid {
+  background-color: var(--metalloid-color);
+}
+
+.legend-color.nonmetal {
+  background-color: var(--nonmetal-color);
+}
+
+.legend-color.halogen {
+  background-color: var(--halogen-color);
+}
+
+.legend-color.noble {
+  background-color: var(--noble-gas-color);
+}
+
+.legend-color.lanthanide {
+  background-color: var(--lanthanide-color);
+}
+
+.legend-color.actinide {
+  background-color: var(--actinide-color);
+}
+
+/* Called list container */
+.called-container {
+  flex: 1;
+  min-width: 300px;
+  max-width: 300px;
+  margin-left: 20px;
+  background: #ffffff;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  padding: 10px;
+  overflow: hidden;
+  position: relative;
+}
+
+.called-container h3 {
+  margin-top: 0;
+  text-align: center;
+}
+
+.called-container ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 5px;
+}
+
+.called-container li {
+  background: #ddd;
+  padding: 5px;
+  border-radius: 4px;
+  font-size: 14px;
+  text-align: center;
+}
+
+.expand-btn {
+  display: none;
+  position: absolute;
+  bottom: 5px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 14px;
+  background: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 4px 8px;
+  cursor: pointer;
+}
+
+.expand-btn:hover {
+  background: #45a049;
+}
+
+/* Modal styles (for element details) */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  animation: fadeIn 0.3s;
+}
+
+.modal-content {
+  background: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  width: 320px;
+  position: relative;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+  animation: slideDown 0.3s;
+}
+
+.modal-content h2 {
+  margin-top: 0;
+}
+
+.modal-close {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: #f44336;
+  color: #fff;
+  border: none;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+/* Bohr diagram styles */
+.bohr-diagram {
+  margin-top: 10px;
+  text-align: center;
+}
+
+.bohr-diagram .shell {
+  margin: 4px 0;
+  font-size: 14px;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideDown {
+  from {
+    transform: translateY(-20px);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* --- Card Generator Styles (scoped to .card-generator-page) --- */
+.card-generator-page {
+  display: none;
+  /* Hidden by default */
+  padding: var(--spacing-unit);
+  background-color: var(--light-gray);
+  color: var(--text-color);
+  font-size: 1rem;
+  line-height: 1.6;
+  font-family: var(--font-family-main);
+  /* Apply font to this section */
+}
+
+.card-generator-page h1 {
+  display: flex;
+  /* Make it a flex container */
+  align-items: center;
+  /* Vertically align items */
+  justify-content: flex-start;
+  /* Start aligning from the left (default for flex) */
+  margin-bottom: calc(var(--spacing-unit) * 1.5);
+  color: var(--dark-gray);
+  font-weight: 600;
+  position: relative;
+  /* For positioning the menu button */
+}
+
+.card-generator-page .header-title {
+  flex-grow: 1;
+  /* Allow the title to take up available space */
+  text-align: center;
+  /* Center the text within its own flex item */
+  margin-left: 10px;
+  /* Small margin to separate from button */
+}
+
+.card-generator-page .main-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(var(--spacing-unit) * 1.5);
+}
+
+.card-generator-page .controls {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-unit);
+  flex: 0 0 250px;
+  /* Adjusted from 300px to 250px */
+  max-width: 100%;
+}
+
+.card-generator-page .control-group label {
+  display: block;
+  margin-bottom: calc(var(--spacing-unit) * 0.25);
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--secondary-color);
+}
+
+.card-generator-page .control-group input[type="number"],
+.card-generator-page .control-group select {
+  width: 100%;
+  max-width: 220px;
+  box-sizing: border-box;
+  padding: 8px 10px;
+  border: 1.5px solid var(--border-color);
+  border-radius: var(--border-radius);
+  background: #fff;
+  font-size: 1rem;
+  font-family: var(--font-family-main);
+  transition: border-color 0.2s, box-shadow 0.2s;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.card-generator-page .control-group input[type="number"]:focus,
+.card-generator-page .control-group select:focus {
+  border-color: var(--primary-color);
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.15);
+}
+
+.card-generator-page .control-group button {
+  width: 100%;
+  /* Ensure buttons also respect max-width if desired, or keep them full width */
+  max-width: 220px;
+  /* Added max-width to buttons for consistency */
+  background-color: var(--primary-color);
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  border-color: var(--primary-color);
+  border-radius: var(--border-radius);
+  padding: calc(var(--spacing-unit) * 0.5) calc(var(--spacing-unit) * 0.75);
+  /* Ensure consistent padding */
+  font-size: 1rem;
+  /* Ensure consistent font size */
+}
+
+.card-generator-page .control-group button:hover {
+  background-color: #0056b3;
+  border-color: #0056b3;
+}
+
+.card-generator-page #pdfBtn {
+  background-color: var(--secondary-color);
+  border-color: var(--secondary-color);
+}
+
+.card-generator-page #pdfBtn:hover {
+  background-color: #5a6268;
+  border-color: #545b62;
+}
+
+.card-generator-page #infoBox {
+  background: #e8f0fe;
+  border: 1px solid #a6c8ff;
+  padding: var(--spacing-unit);
+  border-radius: var(--border-radius);
+  margin-top: calc(var(--spacing-unit) * 0.5);
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: #004085;
+}
+
+.card-generator-page #infoBox strong {
+  color: #003063;
+}
+
+.card-generator-page #cardsContainer {
+  flex-grow: 1;
+  display: grid;
+  gap: var(--spacing-unit);
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  align-content: start;
+}
+
+.card-generator-page .bingo-card {
+  border: 1px solid var(--card-border-color);
+  border-radius: var(--border-radius);
+  width: 100%;
+  max-width: 300px;
+  aspect-ratio: 1 / 1.1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background-color: #fff;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  margin: 0 auto;
+}
+
+.card-generator-page .card-header {
+  background-color: var(--card-header-bg);
+  text-align: center;
+  font-weight: 600;
+  padding: calc(var(--spacing-unit) * 0.3) 0;
+  border-bottom: 1px solid var(--card-border-color);
+  font-size: 0.8rem;
+  color: var(--secondary-color);
+  border-top-left-radius: var(--border-radius);
+  border-top-right-radius: var(--border-radius);
+}
+
+.card-generator-page .card-grid {
+  width: 100%;
+  flex-grow: 1;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  grid-template-rows: repeat(5, 1fr);
+  border-collapse: collapse;
+}
+
+.card-generator-page .bingo-cell {
+  border: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.3rem;
+  font-weight: 600;
+  aspect-ratio: 1 / 1;
+  text-align: center;
+  padding: 2px;
+  overflow: hidden;
+}
+
+.card-generator-page .free {
+  background-color: var(--free-cell-bg);
+  font-size: 0.9rem;
+  font-weight: 400;
+  color: var(--secondary-color);
+}
+
+/* Cell borders for card generator */
+.card-generator-page .card-grid .bingo-cell:nth-child(5n) {
+  border-right: none;
+}
+
+.card-generator-page .card-grid .bingo-cell:nth-child(-n+5) {
+  border-top: none;
+}
+
+.card-generator-page .card-grid .bingo-cell:nth-child(5n+1) {
+  border-left: none;
+}
+
+.card-generator-page .card-grid .bingo-cell:nth-child(n+21) {
+  border-bottom: none;
+}
+
+@media (max-width: 768px) {
+  .card-generator-page .main-container {
+    flex-direction: column;
+  }
+
+  .card-generator-page .controls {
+    flex-basis: auto;
+  }
+
+  .card-generator-page .bingo-card {
+    max-width: none;
+  }
+
+  .card-generator-page h1 {
+    font-size: 1.5rem;
+  }
+}
+
+td.recently-called {
+  outline: 2px solid rgba(247, 9, 9, 0.669);
+  outline-offset: -2px;
+  z-index: 2;
+  position: relative;
+}
+
+/* --- Reset Confirmation Modal Styles --- */
+.reset-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.6);
+  /* Semi-transparent black overlay */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  /* Ensure it's on top */
+}
+
+.reset-modal-content {
+  background-color: #ffffff;
+  /* White background for the modal */
+  padding: 2.5rem;
+  /* Increased padding */
+  border-radius: 1rem;
+  /* More rounded corners */
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  /* Stronger shadow */
+  text-align: center;
+  max-width: 90%;
+  /* Responsive width */
+  width: 400px;
+  /* Max width for desktop */
+  animation: fadeInScale 0.3s ease-out forwards;
+  /* Animation for modal entry */
+}
+
+/* Keyframe animation for modal entry */
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* --- Added Styles to Replace Tailwind --- */
+.hidden {
+  display: none !important;
+}
+
+.text-2xl {
+  font-size: 1.5rem;
+  line-height: 2rem;
+}
+
+.font-bold {
+  font-weight: 700;
+}
+
+.text-gray-900 {
+  color: #111827;
+}
+
+.text-gray-700 {
+  color: #374151;
+}
+
+.mb-4 {
+  margin-bottom: 1rem;
+}
+
+.mb-6 {
+  margin-bottom: 1.5rem;
+}
+
+.flex {
+  display: flex;
+}
+
+.justify-center {
+  justify-content: center;
+}
+
+.space-x-4>*+* {
+  margin-left: 1rem;
+}
+
+.px-6 {
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+}
+
+.py-3 {
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
+}
+
+.bg-gray-300 {
+  background-color: #d1d5db;
+}
+
+.bg-gray-300:hover {
+  background-color: #9ca3af;
+}
+
+.bg-red-600 {
+  background-color: #dc2626;
+}
+
+.bg-red-600:hover {
+  background-color: #b91c1c;
+}
+
+.text-white {
+  color: #fff;
+}
+
+.text-gray-800 {
+  color: #1f2937;
+}
+
+.font-semibold {
+  font-weight: 600;
+}
+
+.rounded-lg {
+  border-radius: 0.5rem;
+}
+
+.shadow-md {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.transition {
+  transition-property: background-color, border-color, color, fill, stroke, opacity, box-shadow, transform;
+}
+
+.duration-200 {
+  transition-duration: 200ms;
+}
+
+.ease-in-out {
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Utility classes for modal buttons (supporting Tailwind-style naming) */
+.hover\:bg-gray-400:hover {
+  background-color: #9ca3af;
+}
+
+.hover\:bg-red-700:hover {
+  background-color: #b91c1c;
+}
+
+.focus\:outline-none:focus {
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+}
+
+.focus\:ring-2:focus {
+  box-shadow: var(--tw-ring-inset) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color);
+}
+
+.focus\:ring-gray-300:focus {
+  --tw-ring-opacity: 1;
+  --tw-ring-color: rgb(209 213 232 / var(--tw-ring-opacity));
+}
+
+.focus\:ring-red-500:focus {
+  --tw-ring-opacity: 1;
+  --tw-ring-color: rgb(239 68 68 / var(--tw-ring-opacity));
+}
+
+.focus\:ring-opacity-75:focus {
+  --tw-ring-opacity: 0.75;
+}
