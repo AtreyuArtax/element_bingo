@@ -21,9 +21,9 @@ function showPage(pageId) {
     document.title = "Element Bingo Card Generator"; // Update title
     // Ensure card generator elements are initialized/updated when shown
     if (!cardGeneratorPage.dataset.initialized) {
-        setupCardGeneratorListeners();
-        generatePreview(); // Generate initial preview
-        cardGeneratorPage.dataset.initialized = 'true';
+      setupCardGeneratorListeners();
+      generatePreview(); // Generate initial preview
+      cardGeneratorPage.dataset.initialized = 'true';
     }
   }
   hideMenu();
@@ -220,7 +220,7 @@ function createBohrDiagram(atomicNumber) {
   const shells = getElectronShells(Number(atomicNumber));
   let html = '<div class="bohr-diagram"><strong>Bohr Diagram:</strong><br>';
   shells.forEach((electrons, index) => {
-    html += `<div class="shell">Shell ${index+1}: ${electrons} e⁻</div>`;
+    html += `<div class="shell">Shell ${index + 1}: ${electrons} e⁻</div>`;
   });
   html += '</div>';
   return html;
@@ -232,22 +232,22 @@ function assignFamilies() {
     let atomic = Number(cell.getAttribute('data-atomic'));
     // Remove any previously assigned family classes.
     cell.classList.remove('alkali', 'alkaline-earth', 'transition', 'basic-metal', 'metalloid', 'nonmetal', 'halogen', 'noble', 'lanthanide', 'actinide');
-    if ([3,11,19,37,55,87].includes(atomic)) {
+    if ([3, 11, 19, 37, 55, 87].includes(atomic)) {
       cell.classList.add('alkali');
-    } else if ([4,12,20,38,56,88].includes(atomic)) {
+    } else if ([4, 12, 20, 38, 56, 88].includes(atomic)) {
       cell.classList.add('alkaline-earth');
     } else if ((atomic >= 21 && atomic <= 30) || (atomic >= 39 && atomic <= 48) ||
-               (atomic >= 72 && atomic <= 80) || (atomic >= 104 && atomic <= 112)) {
+      (atomic >= 72 && atomic <= 80) || (atomic >= 104 && atomic <= 112)) {
       cell.classList.add('transition');
-    } else if ([13,31,49,50,81,82,83].includes(atomic)) {
+    } else if ([13, 31, 49, 50, 81, 82, 83].includes(atomic)) {
       cell.classList.add('basic-metal');
-    } else if ([5,14,32,33,51,52].includes(atomic)) {
+    } else if ([5, 14, 32, 33, 51, 52].includes(atomic)) {
       cell.classList.add('metalloid');
-    } else if ([1,6,7,8,15,16,34].includes(atomic)) {
+    } else if ([1, 6, 7, 8, 15, 16, 34].includes(atomic)) {
       cell.classList.add('nonmetal');
-    } else if ([9,17,35,53,85].includes(atomic)) {
+    } else if ([9, 17, 35, 53, 85].includes(atomic)) {
       cell.classList.add('halogen');
-    } else if ([2,10,18,36,54,86].includes(atomic)) {
+    } else if ([2, 10, 18, 36, 54, 86].includes(atomic)) {
       cell.classList.add('noble');
     } else if (atomic >= 57 && atomic <= 71) {
       cell.classList.add('lanthanide');
@@ -321,13 +321,13 @@ function checkOverflow() {
 
 // Custom message box function (replaces alert/confirm)
 function showCustomMessageBox(message, type = 'info', callback = null) {
-    const existingModal = document.getElementById('customMessageBox');
-    if (existingModal) existingModal.remove(); // Remove any existing message box
+  const existingModal = document.getElementById('customMessageBox');
+  if (existingModal) existingModal.remove(); // Remove any existing message box
 
-    const modal = document.createElement('div');
-    modal.id = 'customMessageBox';
-    modal.classList.add('reset-modal-overlay'); // Reuse the overlay style
-    modal.innerHTML = `
+  const modal = document.createElement('div');
+  modal.id = 'customMessageBox';
+  modal.classList.add('reset-modal-overlay'); // Reuse the overlay style
+  modal.innerHTML = `
         <div class="reset-modal-content">
             <h2 class="text-xl font-bold text-gray-900 mb-4">${type === 'error' ? 'Error' : 'Notification'}</h2>
             <p class="text-gray-700 mb-6">${message}</p>
@@ -336,20 +336,20 @@ function showCustomMessageBox(message, type = 'info', callback = null) {
             </button>
         </div>
     `;
-    document.body.appendChild(modal);
+  document.body.appendChild(modal);
 
-    document.getElementById('messageBoxOkButton').addEventListener('click', () => {
-        modal.remove();
-        if (callback) callback();
-    });
+  document.getElementById('messageBoxOkButton').addEventListener('click', () => {
+    modal.remove();
+    if (callback) callback();
+  });
 
-    // Hide if clicking outside
-    modal.addEventListener('click', (e) => {
-        if (e.target === modal) {
-            modal.remove();
-            if (callback) callback();
-        }
-    });
+  // Hide if clicking outside
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) {
+      modal.remove();
+      if (callback) callback();
+    }
+  });
 }
 
 function setupBingoCallerListeners() {
@@ -376,43 +376,90 @@ function setupBingoCallerListeners() {
 
   gameModeSelector.addEventListener('change', initBingoCaller);
 
-  callButton.addEventListener('click', function() {
+  function handleCall(atomicNumber) {
+    const currentElementDisplay = document.getElementById('currentElementDisplay');
+    const calledList = document.getElementById('calledList');
+
     // 1. Remove red outline from any previously recently-called cell
     document.querySelectorAll('td.recently-called').forEach(td => td.classList.remove('recently-called'));
 
     // 2. Process the element that was 'current' from the *previous* call
     if (currentElement !== null) {
       const prevCurrentCell = document.getElementById('elem-' + currentElement);
-      prevCurrentCell.classList.remove('current'); // Remove 'current' status
-      prevCurrentCell.classList.add('called'); // Mark it as 'called' (turns white)
-      prevCurrentCell.classList.add('recently-called'); // Add red outline to this element
+      if (prevCurrentCell) {
+        prevCurrentCell.classList.remove('current'); // Remove 'current' status
+        prevCurrentCell.classList.add('called'); // Mark it as 'called' (turns white)
+        prevCurrentCell.classList.add('recently-called'); // Add red outline to this element
 
-      // Add to the called list
-      const li = document.createElement('li');
-      li.textContent = elementDetails[currentElement].name; // Use elementDetails for consistent naming
-      calledList.insertBefore(li, calledList.firstChild);
-      checkOverflow();
+        // Add to the called list
+        const li = document.createElement('li');
+        li.textContent = elementDetails[currentElement].name;
+        calledList.insertBefore(li, calledList.firstChild);
+        checkOverflow();
+      }
     }
 
-    // 3. Check if there are elements left to call for the *next* element
+    // 3. Mark the new element as current
+    currentElement = atomicNumber;
+    currentElementDisplay.textContent = elementDetails[atomicNumber].name;
+  }
+
+  callButton.addEventListener('click', function () {
     if (remainingElements.length === 0) {
+      const currentElementDisplay = document.getElementById('currentElementDisplay');
       currentElementDisplay.textContent = "All elements have been called!";
-      // If game ends, ensure no 'recently-called' outline remains
       document.querySelectorAll('td.recently-called').forEach(td => td.classList.remove('recently-called'));
       return;
     }
 
-    // 4. Select the next element to be the 'current' one
     const randomIndex = Math.floor(Math.random() * remainingElements.length);
     const nextAtomic = remainingElements.splice(randomIndex, 1)[0];
-    currentElement = nextAtomic; // Update currentElement to the newly selected one
-
-    const newCurrentCell = document.getElementById('elem-' + nextAtomic);
-    currentElementDisplay.textContent = elementDetails[nextAtomic].name; // Display the new current element
-    // Do NOT add 'current' class
+    handleCall(nextAtomic);
   });
 
-  toggleExpandButton.addEventListener('click', function() {
+  // --- Secret Keyboard Shortcuts ---
+  let keyBuffer = "";
+  let keyTimer = null;
+
+  document.addEventListener('keydown', function (e) {
+    // Only listen if the bingo caller page is visible
+    if (document.getElementById('bingoCallerPage').style.display === 'none') return;
+
+    // Clear buffer after 2 seconds of inactivity
+    if (keyTimer) clearTimeout(keyTimer);
+    keyTimer = setTimeout(() => { keyBuffer = ""; }, 2000);
+
+    if (e.key === 'Enter') {
+      const symbol = keyBuffer.trim();
+      if (symbol) {
+        // Find element by symbol (case-insensitive for convenience)
+        const elementEntry = Object.entries(elementDetails).find(([num, details]) =>
+          details.symbol.toLowerCase() === symbol.toLowerCase()
+        );
+
+        if (elementEntry) {
+          const atomicNumber = parseInt(elementEntry[0]);
+          const index = remainingElements.indexOf(atomicNumber);
+
+          if (index !== -1) {
+            remainingElements.splice(index, 1);
+            handleCall(atomicNumber);
+          } else if (currentElement === atomicNumber) {
+            // Already current, do nothing or show message
+          } else {
+            // Already called
+            showCustomMessageBox(`${elementDetails[atomicNumber].name} has already been called.`);
+          }
+        }
+      }
+      keyBuffer = "";
+    } else if (e.key.length === 1 && /[a-zA-Z]/.test(e.key)) {
+      keyBuffer += e.key;
+    }
+  });
+
+
+  toggleExpandButton.addEventListener('click', function () {
     if (isExpanded) {
       calledContainer.style.height = desiredCollapseHeight + "px";
       toggleExpandButton.textContent = "Expand";
@@ -425,27 +472,27 @@ function setupBingoCallerListeners() {
   });
 
   // Modified: Reset button now shows confirmation modal
-  resetButton.addEventListener('click', function() {
+  resetButton.addEventListener('click', function () {
     resetConfirmationModal.classList.remove('hidden'); // Show the reset confirmation modal
   });
 
   // New: Event listener for "Confirm Reset" button
   confirmResetButton.addEventListener('click', () => {
-      initBingoCaller(); // Perform the actual reset
-      resetConfirmationModal.classList.add('hidden'); // Hide the modal
-      //showCustomMessageBox('The game has been reset!'); // Show a custom success message
+    initBingoCaller(); // Perform the actual reset
+    resetConfirmationModal.classList.add('hidden'); // Hide the modal
+    //showCustomMessageBox('The game has been reset!'); // Show a custom success message
   });
 
   // New: Event listener for "Cancel Reset" button
   cancelResetButton.addEventListener('click', () => {
-      resetConfirmationModal.classList.add('hidden'); // Hide the modal
+    resetConfirmationModal.classList.add('hidden'); // Hide the modal
   });
 
   // New: Hide reset confirmation modal if clicking outside its content
   resetConfirmationModal.addEventListener('click', (event) => {
-      if (event.target === resetConfirmationModal) {
-          resetConfirmationModal.classList.add('hidden');
-      }
+    if (event.target === resetConfirmationModal) {
+      resetConfirmationModal.classList.add('hidden');
+    }
   });
 
 
@@ -466,7 +513,7 @@ function setupBingoCallerListeners() {
 
   // Attach event listeners to each periodic table cell
   document.querySelectorAll('td[id^="elem-"]').forEach(cell => {
-    cell.addEventListener('click', function(e) {
+    cell.addEventListener('click', function (e) {
       if (cell.classList.contains('empty') || cell.classList.contains('label')) return;
       const atomic = cell.getAttribute('data-atomic');
       // Use the centralized elementDetails object directly
@@ -481,7 +528,7 @@ function setupBingoCallerListeners() {
   });
 
   modalClose.addEventListener('click', hideElementDetailsModal);
-  modalOverlay.addEventListener('click', function(e) {
+  modalOverlay.addEventListener('click', function (e) {
     if (e.target === modalOverlay) hideElementDetailsModal();
   });
 }
@@ -793,7 +840,7 @@ function setupCardGeneratorListeners() {
 }
 
 // --- Initialize on page load ---
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
   // Set up menu listeners
   menuButtonCaller.addEventListener('click', toggleMenu);
   // Add event listener for the new menu button on the generator page
