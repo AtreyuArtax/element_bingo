@@ -274,6 +274,7 @@ let collapsedHeight = 0;
 let desiredCollapseHeight = 0; // global variable for our desired collapse height
 let isExpanded = false;
 const rowHeight = 50;
+let keyBuffer = ""; // Global buffer for secret keyboard shortcuts
 
 function initBingoCaller() {
   const gameModeSelector = document.getElementById('gameMode');
@@ -414,24 +415,24 @@ function setupBingoCallerListeners() {
 
     const randomIndex = Math.floor(Math.random() * remainingElements.length);
     const nextAtomic = remainingElements.splice(randomIndex, 1)[0];
+    keyBuffer = ""; // Clear secret buffer on manual call
     handleCall(nextAtomic);
   });
 
   // --- Secret Keyboard Shortcuts ---
-  let keyBuffer = "";
-  let keyTimer = null;
-
   document.addEventListener('keydown', function (e) {
     // Only listen if the bingo caller page is visible
     if (document.getElementById('bingoCallerPage').style.display === 'none') return;
 
-    // Clear buffer after 2 seconds of inactivity
-    if (keyTimer) clearTimeout(keyTimer);
-    keyTimer = setTimeout(() => { keyBuffer = ""; }, 2000);
+    if (e.key === '1') {
+      triggerFireworks();
+      return;
+    }
 
     if (e.key === 'Enter') {
       const symbol = keyBuffer.trim();
       if (symbol) {
+        e.preventDefault(); // Prevent Enter from triggering focused buttons
         // Find element by symbol (case-insensitive for convenience)
         const elementEntry = Object.entries(elementDetails).find(([num, details]) =>
           details.symbol.toLowerCase() === symbol.toLowerCase()
@@ -456,7 +457,7 @@ function setupBingoCallerListeners() {
     } else if (e.key.length === 1 && /[a-zA-Z]/.test(e.key)) {
       keyBuffer += e.key;
     }
-  });
+  }, true); // Use capture phase to intercept Enter before focused buttons
 
 
   toggleExpandButton.addEventListener('click', function () {
@@ -478,6 +479,7 @@ function setupBingoCallerListeners() {
 
   // New: Event listener for "Confirm Reset" button
   confirmResetButton.addEventListener('click', () => {
+    keyBuffer = ""; // Clear secret buffer on reset
     initBingoCaller(); // Perform the actual reset
     resetConfirmationModal.classList.add('hidden'); // Hide the modal
     //showCustomMessageBox('The game has been reset!'); // Show a custom success message
@@ -837,6 +839,92 @@ function setupCardGeneratorListeners() {
   // Keep the "Randomize" button for manual regeneration
   randomizeButton.addEventListener("click", generatePreview);
   document.getElementById("pdfBtn").addEventListener("click", generatePDFWindow);
+}
+
+// --- Fireworks Logic ---
+const fireworksCanvas = document.getElementById('fireworksCanvas');
+const fireworksCtx = fireworksCanvas.getContext('2d');
+let fireworksParticles = [];
+
+function resizeFireworksCanvas() {
+  fireworksCanvas.width = window.innerWidth;
+  fireworksCanvas.height = window.innerHeight;
+}
+
+window.addEventListener('resize', resizeFireworksCanvas);
+resizeFireworksCanvas();
+
+class FireworkParticle {
+  constructor(x, y, color) {
+    this.x = x;
+    this.y = y;
+    this.color = color;
+    this.velocity = {
+      x: (Math.random() - 0.5) * 8,
+      y: (Math.random() - 0.5) * 8
+    };
+    this.alpha = 1;
+    this.friction = 0.95;
+    this.gravity = 0.2;
+  }
+
+  draw() {
+    fireworksCtx.save();
+    fireworksCtx.globalAlpha = this.alpha;
+    fireworksCtx.beginPath();
+    fireworksCtx.arc(this.x, this.y, 2, 0, Math.PI * 2, false);
+    fireworksCtx.fillStyle = this.color;
+    fireworksCtx.fill();
+    fireworksCtx.restore();
+  }
+
+  update() {
+    this.velocity.x *= this.friction;
+    this.velocity.y *= this.friction;
+    this.velocity.y += this.gravity;
+    this.x += this.velocity.x;
+    this.y += this.velocity.y;
+    this.alpha -= 0.01;
+  }
+}
+
+function triggerFireworks() {
+  const colors = ['#ff0000', '#ffa500', '#ffff00', '#008000', '#0000ff', '#4b0082', '#ee82ee'];
+  for (let i = 0; i < 5; i++) {
+    setTimeout(() => {
+      const x = Math.random() * fireworksCanvas.width;
+      const y = Math.random() * fireworksCanvas.height * 0.5;
+      const color = colors[Math.floor(Math.random() * colors.length)];
+      for (let j = 0; j < 50; j++) {
+        fireworksParticles.push(new FireworkParticle(x, y, color));
+      }
+    }, i * 200);
+  }
+
+  if (fireworksParticles.length > 0 && !window.fireworksAnimationActive) {
+    animateFireworks();
+  }
+}
+
+function animateFireworks() {
+  window.fireworksAnimationActive = true;
+  fireworksCtx.clearRect(0, 0, fireworksCanvas.width, fireworksCanvas.height);
+
+  fireworksParticles.forEach((particle, index) => {
+    if (particle.alpha <= 0) {
+      fireworksParticles.splice(index, 1);
+    } else {
+      particle.update();
+      particle.draw();
+    }
+  });
+
+  if (fireworksParticles.length > 0) {
+    requestAnimationFrame(animateFireworks);
+  } else {
+    window.fireworksAnimationActive = false;
+    fireworksCtx.clearRect(0, 0, fireworksCanvas.width, fireworksCanvas.height);
+  }
 }
 
 // --- Initialize on page load ---
