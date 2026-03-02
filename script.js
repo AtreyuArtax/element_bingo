@@ -395,6 +395,12 @@ function setupBingoCallerListeners() {
         // Add to the called list
         const li = document.createElement('li');
         li.textContent = elementDetails[currentElement].name;
+
+        // Remove 'last-called' from all existing list items
+        calledList.querySelectorAll('li').forEach(item => item.classList.remove('last-called'));
+        // Add it to the new one
+        li.classList.add('last-called');
+
         calledList.insertBefore(li, calledList.firstChild);
         checkOverflow();
       }
@@ -402,14 +408,18 @@ function setupBingoCallerListeners() {
 
     // 3. Mark the new element as current
     currentElement = atomicNumber;
-    currentElementDisplay.textContent = elementDetails[atomicNumber].name;
+    if (atomicNumber !== null) {
+      currentElementDisplay.textContent = elementDetails[atomicNumber].name;
+    }
   }
 
   callButton.addEventListener('click', function () {
     if (remainingElements.length === 0) {
-      const currentElementDisplay = document.getElementById('currentElementDisplay');
-      currentElementDisplay.textContent = "All elements have been called!";
-      document.querySelectorAll('td.recently-called').forEach(td => td.classList.remove('recently-called'));
+      if (currentElement !== null) {
+        handleCall(null);
+        document.getElementById('currentElementDisplay').textContent = "All elements have been called!";
+        document.querySelectorAll('td.recently-called').forEach(td => td.classList.remove('recently-called'));
+      }
       return;
     }
 
@@ -432,9 +442,11 @@ function setupBingoCallerListeners() {
     if (e.key === ' ' || e.key === 'Spacebar') { // 'Spacebar' as fallback for older browsers
       e.preventDefault(); // Prevent scrolling
       if (remainingElements.length === 0) {
-        const currentElementDisplay = document.getElementById('currentElementDisplay');
-        currentElementDisplay.textContent = "All elements have been called!";
-        document.querySelectorAll('td.recently-called').forEach(td => td.classList.remove('recently-called'));
+        if (currentElement !== null) {
+          handleCall(null);
+          document.getElementById('currentElementDisplay').textContent = "All elements have been called!";
+          document.querySelectorAll('td.recently-called').forEach(td => td.classList.remove('recently-called'));
+        }
         return;
       }
       const randomIndex = Math.floor(Math.random() * remainingElements.length);
