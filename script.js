@@ -429,6 +429,21 @@ function setupBingoCallerListeners() {
       return;
     }
 
+    if (e.key === ' ' || e.key === 'Spacebar') { // 'Spacebar' as fallback for older browsers
+      e.preventDefault(); // Prevent scrolling
+      if (remainingElements.length === 0) {
+        const currentElementDisplay = document.getElementById('currentElementDisplay');
+        currentElementDisplay.textContent = "All elements have been called!";
+        document.querySelectorAll('td.recently-called').forEach(td => td.classList.remove('recently-called'));
+        return;
+      }
+      const randomIndex = Math.floor(Math.random() * remainingElements.length);
+      const nextAtomic = remainingElements.splice(randomIndex, 1)[0];
+      keyBuffer = ""; // Clear buffer
+      handleCall(nextAtomic);
+      return;
+    }
+
     if (e.key === 'Enter') {
       const symbol = keyBuffer.trim();
       if (symbol) {
