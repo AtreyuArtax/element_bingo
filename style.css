@@ -21,6 +21,8 @@
   /* Lanthanides */
   --actinide-color: #e1aacd;
   /* Actinides */
+  --unknown-color: #cccccc;
+  /* Unknown / Superheavy */
 
   --bg-color: #f0f0f0;
   --text-color: #333;
@@ -253,6 +255,10 @@ td.actinide {
   background-color: var(--actinide-color);
 }
 
+td.unknown {
+  background-color: var(--unknown-color);
+}
+
 table.periodic-table td {
   width: min(5vw, 6.8vh, 85px);
   height: min(5vw, 6.8vh, 85px);
@@ -380,6 +386,10 @@ table.periodic-table td.current {
 
 .legend-color.actinide {
   background-color: var(--actinide-color);
+}
+
+.legend-color.unknown {
+  background-color: var(--unknown-color);
 }
 
 /* Called list container */

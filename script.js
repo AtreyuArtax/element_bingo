@@ -231,7 +231,7 @@ function assignFamilies() {
   document.querySelectorAll('td[id^="elem-"]').forEach(cell => {
     let atomic = Number(cell.getAttribute('data-atomic'));
     // Remove any previously assigned family classes.
-    cell.classList.remove('alkali', 'alkaline-earth', 'transition', 'basic-metal', 'metalloid', 'nonmetal', 'halogen', 'noble', 'lanthanide', 'actinide');
+    cell.classList.remove('alkali', 'alkaline-earth', 'transition', 'basic-metal', 'metalloid', 'nonmetal', 'halogen', 'noble', 'lanthanide', 'actinide', 'unknown');
     if ([3, 11, 19, 37, 55, 87].includes(atomic)) {
       cell.classList.add('alkali');
     } else if ([4, 12, 20, 38, 56, 88].includes(atomic)) {
@@ -257,14 +257,8 @@ function assignFamilies() {
     // Additional explicit assignments for exceptions:
     else if (atomic === 84) {
       cell.classList.add('metalloid');
-    } else if (atomic >= 113 && atomic <= 115) {
-      cell.classList.add('basic-metal');
-    } else if (atomic === 116) {
-      cell.classList.add('basic-metal');
-    } else if (atomic === 117) {
-      cell.classList.add('halogen');
-    } else if (atomic === 118) {
-      cell.classList.add('noble');
+    } else if (atomic >= 113 && atomic <= 118) {
+      cell.classList.add('unknown');
     }
   });
 }
