@@ -273,8 +273,20 @@ let remainingElements, currentElement;
 let collapsedHeight = 0;
 let desiredCollapseHeight = 0; // global variable for our desired collapse height
 let isExpanded = false;
-const rowHeight = 50;
+let rowHeight = 40; // Reduced row height for compact view
 let keyBuffer = ""; // Global buffer for secret keyboard shortcuts
+
+function adjustSidebarLayout() {
+  const calledContainer = document.getElementById('calledContainer');
+  const tableWrapper = document.querySelector('.table-wrapper');
+  if (!calledContainer || !tableWrapper) return;
+
+  desiredCollapseHeight = tableWrapper.offsetHeight - 20;
+  if (!isExpanded) {
+    calledContainer.style.height = desiredCollapseHeight + "px";
+  }
+  checkOverflow();
+}
 
 function initBingoCaller() {
   const gameModeSelector = document.getElementById('gameMode');
@@ -296,12 +308,8 @@ function initBingoCaller() {
   currentElement = null;
   currentElementDisplay.textContent = 'Element BINGO!';
   calledList.innerHTML = '';
-  const tableWrapper = document.querySelector('.table-wrapper');
-  desiredCollapseHeight = tableWrapper.offsetHeight - 20; // 20px shorter than the table wrapper
-  collapsedHeight = desiredCollapseHeight;
-  calledContainer.style.height = desiredCollapseHeight + "px";
+  adjustSidebarLayout();
   isExpanded = false;
-  toggleExpandButton.style.display = "none";
   toggleExpandButton.textContent = "Expand";
   assignFamilies();
 }
@@ -376,6 +384,7 @@ function setupBingoCallerListeners() {
   const cancelResetButton = document.getElementById('cancelResetButton');
 
   gameModeSelector.addEventListener('change', initBingoCaller);
+  window.addEventListener('resize', adjustSidebarLayout);
 
   function handleCall(atomicNumber) {
     const currentElementDisplay = document.getElementById('currentElementDisplay');
