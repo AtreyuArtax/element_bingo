@@ -37,6 +37,13 @@ function hideMenu() {
   menuOverlay.classList.remove('open');
 }
 
+// Close menu when clicking outside the menu content
+menuOverlay.addEventListener('click', function (e) {
+  if (e.target === menuOverlay) {
+    hideMenu();
+  }
+});
+
 // --- Centralized Element Data ---
 // Detailed data for all 118 elements. This remains the primary source of element information.
 const elementDetails = {

@@ -117,6 +117,15 @@ body {
   text-align: left;
 }
 
+/* Explicitly override standard button styles for the close button */
+.menu-content button.menu-close {
+  width: auto;
+  padding: 0;
+  margin-bottom: 0;
+  background-color: transparent;
+  color: #333;
+}
+
 .menu-content button:hover {
   background-color: #45a049;
 }
@@ -127,8 +136,15 @@ body {
   font-size: 30px;
   color: #333;
   cursor: pointer;
-  align-self: flex-end;
-  margin-bottom: 20px;
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  line-height: 1;
+}
+
+/* Add padding to first item so it doesn't overlap the absolute close button */
+.menu-content>button:nth-child(2) {
+  margin-top: 30px;
 }
 
 .menu-section {
