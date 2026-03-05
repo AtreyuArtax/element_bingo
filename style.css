@@ -235,12 +235,18 @@ table.periodic-table {
 }
 
 .call-name {
-  font-size: 56px;
+  font-size: 70px;
   /* Reduced slightly to save vertical space */
   font-weight: bold;
   color: #333;
   margin-top: 0px;
+  margin-bottom: 5px;
   line-height: 1.0;
+}
+
+.call-name.game-over {
+  font-size: 46px;
+  /* Ensure phrasing fits on one line */
 }
 
 /* Family color classes */
@@ -546,10 +552,6 @@ table.periodic-table td.current {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 5px;
-  max-height: 380px;
-  /* Adjust based on viewport needs */
-  overflow-y: auto;
-  padding-right: 5px;
 }
 
 .called-container li {

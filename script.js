@@ -378,6 +378,7 @@ function adjustSidebarLayout() {
   const statsBox = document.getElementById('statsBox');
   const calledContainer = document.getElementById('calledContainer');
   const tableWrapper = document.querySelector('.table-wrapper');
+  const controlsBox = document.querySelector('.controls-box'); // Added to calculation
 
   if (!sidebar || !timerBox || !statsBox || !calledContainer || !tableWrapper) return;
 
@@ -385,14 +386,16 @@ function adjustSidebarLayout() {
   const totalAvailableHeight = tableWrapper.offsetHeight;
 
   // Calculate how much space is left for the called elements list
-  // Substract timerBox height, statsBox height, gaps (15px * 2), and a small safety buffer (4px)
+  // Subtract controlsBox, timerBox, statsBox heights, gaps, and a small safety buffer
+  const controlsHeight = controlsBox ? controlsBox.offsetHeight : 0;
   const timerHeight = timerBox.offsetHeight || 0;
   const statsHeight = statsBox.offsetHeight || 0;
   const gap = 15;
+  const numGaps = controlsBox ? 3 : 2; // 3 gaps if controlsBox is present
   const buffer = 4;
 
   // Ensure we don't end up with negative or tiny height
-  desiredCollapseHeight = Math.max(totalAvailableHeight - timerHeight - statsHeight - (gap * 2) - buffer, 100);
+  desiredCollapseHeight = Math.max(totalAvailableHeight - controlsHeight - timerHeight - statsHeight - (gap * numGaps) - buffer, 100);
 
   if (!isExpanded) {
     calledContainer.style.height = desiredCollapseHeight + "px";
@@ -420,6 +423,7 @@ function initBingoCaller() {
   }
   currentElement = null;
   currentElementDisplay.textContent = 'Ready to Play';
+  currentElementDisplay.classList.remove('game-over');
 
   // Update header display if it exists (for the "Ready to Play" header box)
 
@@ -434,12 +438,11 @@ function initBingoCaller() {
 
 function checkOverflow() {
   const calledContainer = document.getElementById('calledContainer');
-  const calledList = document.getElementById('calledList');
   const toggleExpandButton = document.getElementById('toggleExpandButton');
 
   if (isExpanded) {
     toggleExpandButton.style.display = "block";
-  } else if (calledList.scrollHeight > (calledContainer.clientHeight - rowHeight)) {
+  } else if (calledContainer.scrollHeight > calledContainer.clientHeight + 5) {
     toggleExpandButton.style.display = "block";
   } else {
     toggleExpandButton.style.display = "none";
@@ -565,6 +568,7 @@ function setupBingoCallerListeners() {
       startTimer(); // Start/Restart timer on each call
     } else {
       currentElementDisplay.textContent = 'Game Over';
+      currentElementDisplay.classList.add('game-over');
       stopTimer(); // Stop timer if no more elements
     }
   }
@@ -574,6 +578,7 @@ function setupBingoCallerListeners() {
       if (currentElement !== null) {
         handleCall(null);
         document.getElementById('currentElementDisplay').textContent = "All elements have been called!";
+        document.getElementById('currentElementDisplay').classList.add('game-over');
         document.querySelectorAll('td.recently-called').forEach(td => td.classList.remove('recently-called'));
       }
       return;
@@ -601,6 +606,7 @@ function setupBingoCallerListeners() {
         if (currentElement !== null) {
           handleCall(null);
           document.getElementById('currentElementDisplay').textContent = "All elements have been called!";
+          document.getElementById('currentElementDisplay').classList.add('game-over');
           document.querySelectorAll('td.recently-called').forEach(td => td.classList.remove('recently-called'));
         }
         return;
