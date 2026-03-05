@@ -812,6 +812,13 @@ td.recently-called {
   /* Allow underlying cell hovers */
   display: flex;
   justify-content: center;
+  cursor: grab;
+  touch-action: none;
+  /* Prevents default browser handling of touch gestures */
+}
+
+.call-timer-card:active {
+  cursor: grabbing;
 }
 
 .timer-cell {

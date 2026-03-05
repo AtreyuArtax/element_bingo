@@ -428,6 +428,8 @@ function setupBingoCallerListeners() {
   });
 
 
+  makeDraggable(document.getElementById('callTimerCard'));
+
   function handleCall(atomicNumber) {
     const currentElementDisplay = document.getElementById('currentElementDisplay');
     const calledList = document.getElementById('calledList');
@@ -614,6 +616,75 @@ function setupBingoCallerListeners() {
   modalOverlay.addEventListener('click', function (e) {
     if (e.target === modalOverlay) hideElementDetailsModal();
   });
+}
+
+/**
+ * Makes an element draggable via mouse or touch.
+ * @param {HTMLElement} elmnt - The element to make draggable.
+ */
+function makeDraggable(elmnt) {
+  if (!elmnt) return;
+  let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+
+  // Use the entire element for dragging, but ignore clicks on interactive buttons
+  elmnt.addEventListener('mousedown', dragMouseDown);
+  elmnt.addEventListener('touchstart', dragTouchStart, { passive: false });
+
+  function dragMouseDown(e) {
+    // If we're clicking a button inside, let the button handle it.
+    if (e.target.tagName.toLowerCase() === 'button') return;
+
+    e.preventDefault();
+    // get the mouse cursor position at startup:
+    pos3 = e.clientX;
+    pos4 = e.clientY;
+    document.addEventListener('mouseup', closeDragElement);
+    document.addEventListener('mousemove', elementDrag);
+    elmnt.style.transition = 'none'; // Disable transition while dragging for smoothness
+  }
+
+  function dragTouchStart(e) {
+    if (e.target.tagName.toLowerCase() === 'button') return;
+
+    const touch = e.touches[0];
+    pos3 = touch.clientX;
+    pos4 = touch.clientY;
+    document.addEventListener('touchend', closeDragElement);
+    document.addEventListener('touchmove', elementTouchDrag, { passive: false });
+    elmnt.style.transition = 'none';
+  }
+
+  function elementDrag(e) {
+    e.preventDefault();
+    // calculate the new cursor position:
+    pos1 = pos3 - e.clientX;
+    pos2 = pos4 - e.clientY;
+    pos3 = e.clientX;
+    pos4 = e.clientY;
+    // set the element's new position:
+    elmnt.style.top = (elmnt.offsetTop - pos2) + "px";
+    elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
+  }
+
+  function elementTouchDrag(e) {
+    e.preventDefault(); // Prevent scrolling while dragging
+    const touch = e.touches[0];
+    pos1 = pos3 - touch.clientX;
+    pos2 = pos4 - touch.clientY;
+    pos3 = touch.clientX;
+    pos4 = touch.clientY;
+    elmnt.style.top = (elmnt.offsetTop - pos2) + "px";
+    elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
+  }
+
+  function closeDragElement() {
+    // stop moving when mouse button is released:
+    document.removeEventListener('mouseup', closeDragElement);
+    document.removeEventListener('mousemove', elementDrag);
+    document.removeEventListener('touchend', closeDragElement);
+    document.removeEventListener('touchmove', elementTouchDrag);
+    elmnt.style.transition = ''; // Restore transition
+  }
 }
 
 
