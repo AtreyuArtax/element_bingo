@@ -522,7 +522,20 @@ table.periodic-table td.current {
   line-height: 1.2;
 }
 
+.modal-confirm-btn {
+  background-color: #4CAF50;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background-color 0.2s;
+}
 
+.modal-confirm-btn:hover {
+  background-color: #45a049;
+}
 
 
 .called-container h3 {
