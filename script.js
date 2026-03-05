@@ -273,6 +273,54 @@ let timerInterval = null;
 let secondsElapsed = 0;
 let isTimerCollapsed = false;
 
+// Pre-calculated probability curve for Bingo (approximate for class size ~30 on 5x5 grid)
+// This is a simplified logistical curve: P(x) = 1 / (1 + e^-(k(x-m)))
+// m is the midpoint (where P = 0.5), k is the steepness
+function getWinProbability(callsMade, totalElements) {
+  if (callsMade < 4) return 0; // Impossible to win in <4 calls (5 including free space usually, but 4 is safe)
+
+  // Adjusted midpoints based on total elements
+  // For 56 elements, midpoint is around 18-22 calls
+  // For 118 elements, midpoint is around 40-45 calls
+  const m = totalElements === 56 ? 20 : 42;
+  const k = 0.2; // Steepness
+
+  const probability = 1 / (1 + Math.exp(-k * (callsMade - m)));
+  return Math.min(Math.round(probability * 100), 100);
+}
+
+function updateWinProbability() {
+  const probDisplay = document.getElementById('winProbability');
+  if (!probDisplay) return;
+
+  const gameModeSelector = document.getElementById('gameMode');
+  const totalElements = getAtomicNumbersForMode(gameModeSelector.value).length;
+  const callsMade = document.getElementById('calledList').children.length;
+
+  const prob = getWinProbability(callsMade, totalElements);
+  probDisplay.textContent = prob + "%";
+
+  // Color coding for "heat"
+  if (prob < 10) probDisplay.style.color = "#333";
+  else if (prob < 40) probDisplay.style.color = "#f39c12"; // Orange
+  else probDisplay.style.color = "#e74c3c"; // Red
+
+  // Update Average Progress
+  const progressDisplay = document.getElementById('averageProgress');
+  if (progressDisplay) {
+    const m = totalElements === 56 ? 20 : 42;
+    // Simple estimation: starts at 5, drops to 1 near midpoint
+    let away = Math.max(1, Math.round(5 - (callsMade / m) * 4));
+    if (prob > 80) away = 1; // Heavy bias toward 1 when prob is high
+
+    const text = away === 1
+      ? "On average, players are 1 element away from a Bingo!"
+      : `On average, players are ${away} elements away from a Bingo.`;
+    progressDisplay.textContent = text;
+  }
+}
+
+
 function formatTime(seconds) {
   const mins = Math.floor(seconds / 60);
   const secs = seconds % 60;
@@ -327,24 +375,29 @@ function toggleTimer() {
 function adjustSidebarLayout() {
   const sidebar = document.getElementById('sidebar');
   const timerBox = document.getElementById('timerBox');
+  const statsBox = document.getElementById('statsBox');
   const calledContainer = document.getElementById('calledContainer');
   const tableWrapper = document.querySelector('.table-wrapper');
 
-  if (!sidebar || !timerBox || !calledContainer || !tableWrapper) return;
+  if (!sidebar || !timerBox || !statsBox || !calledContainer || !tableWrapper) return;
 
   // The sidebar should match the table height
   const totalAvailableHeight = tableWrapper.offsetHeight;
 
   // Calculate how much space is left for the called elements list
-  // Substract timerBox height, gap (15px), and a small safety buffer (4px)
-  const timerHeight = timerBox.offsetHeight;
+  // Substract timerBox height, statsBox height, gaps (15px * 2), and a small safety buffer (4px)
+  const timerHeight = timerBox.offsetHeight || 0;
+  const statsHeight = statsBox.offsetHeight || 0;
   const gap = 15;
   const buffer = 4;
-  desiredCollapseHeight = totalAvailableHeight - timerHeight - gap - buffer;
+
+  // Ensure we don't end up with negative or tiny height
+  desiredCollapseHeight = Math.max(totalAvailableHeight - timerHeight - statsHeight - (gap * 2) - buffer, 100);
 
   if (!isExpanded) {
     calledContainer.style.height = desiredCollapseHeight + "px";
   }
+
   checkOverflow();
 }
 
@@ -372,6 +425,7 @@ function initBingoCaller() {
   isExpanded = false;
   toggleExpandButton.textContent = "Expand";
   resetTimer();
+  updateWinProbability();
   assignFamilies();
 }
 
@@ -474,6 +528,7 @@ function setupBingoCallerListeners() {
 
         calledList.insertBefore(li, calledList.firstChild);
         checkOverflow();
+        updateWinProbability();
       }
     }
 

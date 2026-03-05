@@ -464,6 +464,39 @@ table.periodic-table td.current {
   flex-grow: 1;
 }
 
+.stats-box {
+  background: #ffffff;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  padding: 10px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.stats-header {
+  font-size: 12px;
+  font-weight: 600;
+  color: #666;
+  margin-bottom: 4px;
+}
+
+.stats-value {
+  font-size: 24px;
+  font-weight: bold;
+  text-align: center;
+  color: #333;
+}
+
+.stats-subtext {
+  font-size: 11px;
+  color: #777;
+  text-align: center;
+  margin-top: 6px;
+  font-style: italic;
+  line-height: 1.2;
+}
+
+
+
 
 .called-container h3 {
   margin-top: 0;
