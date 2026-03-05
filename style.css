@@ -201,8 +201,6 @@ body {
 .table-wrapper {
   display: inline-block;
   vertical-align: top;
-  position: relative;
-  /* Base for absolute timer */
 }
 
 .table-container {
@@ -394,19 +392,78 @@ table.periodic-table td.current {
   background-color: var(--unknown-color);
 }
 
-/* Called list container */
-.called-container {
+/* Sidebar wrapper */
+.sidebar {
   flex: 0 1 min(28vw, 450px);
   min-width: 250px;
   max-width: 500px;
   margin-left: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.timer-box {
+  background: #ffffff;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  padding: 10px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+
+.timer-box.collapsed {
+  padding-bottom: 4px;
+  /* Maintain some spacing but less than expanded */
+}
+
+.timer-box.collapsed .timer-display {
+  display: none;
+}
+
+
+.timer-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
+  font-weight: 600;
+  color: #666;
+  margin-bottom: 4px;
+}
+
+.timer-display {
+  font-family: monospace;
+  font-size: 24px;
+  font-weight: bold;
+  text-align: center;
+  color: #333;
+}
+
+.timer-toggle-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 12px;
+  padding: 0 4px;
+  color: #888;
+}
+
+.timer-toggle-btn:hover {
+  color: #333;
+}
+
+/* Called list container */
+.called-container {
   background: #ffffff;
   border: 1px solid #ccc;
   border-radius: 6px;
   padding: 10px;
   overflow: hidden;
   position: relative;
+  flex-grow: 1;
 }
+
 
 .called-container h3 {
   margin-top: 0;
@@ -783,136 +840,23 @@ td.recently-called {
   /* Ensure it's on top */
 }
 
-@keyframes fadeInScale {
-  from {
-    transform: scale(0.9);
-    opacity: 0;
-  }
-
-  to {
-    transform: scale(1);
-    opacity: 1;
-  }
+.reset-modal-content {
+  background-color: #ffffff;
+  /* White background for the modal */
+  padding: 2.5rem;
+  /* Increased padding */
+  border-radius: 1rem;
+  /* More rounded corners */
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  /* Stronger shadow */
+  text-align: center;
+  max-width: 90%;
+  /* Responsive width */
+  width: 400px;
+  /* Max width for desktop */
+  animation: fadeInScale 0.3s ease-out forwards;
+  /* Animation for modal entry */
 }
-
-/* --- Call Timer Styles --- */
-.call-timer-card {
-  position: absolute;
-  top: 7%;
-  /* Shifted higher for laptop screens */
-  left: 50%;
-  /* Centered horizontally in the gap */
-  transform: translateX(-50%);
-  width: 28%;
-  /* More compact width */
-  max-width: 320px;
-  min-width: 160px;
-  z-index: 50;
-  pointer-events: none;
-  /* Allow underlying cell hovers */
-  display: flex;
-  justify-content: center;
-  cursor: grab;
-  touch-action: none;
-  /* Prevents default browser handling of touch gestures */
-}
-
-.call-timer-card:active {
-  cursor: grabbing;
-}
-
-.timer-cell {
-  display: none;
-  /* No longer used as a cell */
-}
-
-.timer-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  background: white;
-  border: 4px solid #4CAF50;
-  border-radius: 12px;
-  padding: 5px 12px;
-  width: 100%;
-  height: auto;
-  position: relative;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
-  transition: all 0.3s ease;
-  pointer-events: auto;
-  /* Re-enable for buttons */
-}
-
-
-.timer-label {
-  font-size: 14px;
-  color: #666;
-  margin-bottom: 5px;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-}
-
-.timer-display {
-  font-size: min(4vw, 42px);
-  font-weight: bold;
-  color: #333;
-  font-family: monospace;
-  line-height: 1;
-}
-
-.minimize-timer-btn {
-  position: absolute;
-  top: 5px;
-  right: 5px;
-  background: #eee;
-  border: none;
-  border-radius: 4px;
-  width: 24px;
-  height: 24px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 18px;
-  color: #666;
-  transition: background 0.2s;
-}
-
-.minimize-timer-btn:hover {
-  background: #ddd;
-}
-
-.maximize-timer-btn {
-  background: white;
-  border: 4px solid #4CAF50;
-  border-radius: 50%;
-  width: 50px;
-  height: 50px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 24px;
-  margin: 0 auto;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  transition: transform 0.2s;
-  pointer-events: auto;
-  /* Essential for interaction */
-}
-
-.maximize-timer-btn:hover {
-  transform: scale(1.1);
-}
-
-.hidden {
-  display: none !important;
-}
-
-.timer-container.minimized {
-  display: none;
-}
-
 
 /* Keyframe animation for modal entry */
 @keyframes fadeInScale {

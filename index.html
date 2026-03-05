@@ -452,15 +452,6 @@
             </tr>
           </table>
         </div>
-        <!-- Floating Call Timer Card -->
-        <div id="callTimerCard" class="call-timer-card">
-          <div id="timerContainer" class="timer-container minimized">
-            <div class="timer-label">Time since last call</div>
-            <div id="timerDisplay" class="timer-display">0:00</div>
-            <button id="minimizeTimerBtn" class="minimize-timer-btn" title="Minimize Timer">&minus;</button>
-          </div>
-          <button id="maximizeTimerBtn" class="maximize-timer-btn" title="Show Timer">⏱️</button>
-        </div>
         <!-- Legend for element families -->
         <div class="legend">
           <div class="legend-item"><span class="legend-color alkali"></span> Alkali Metals</div>
@@ -477,10 +468,20 @@
         </div>
       </div>
 
-      <div class="called-container" id="calledContainer">
-        <h3>Called Elements</h3>
-        <ul id="calledList"></ul>
-        <button class="expand-btn" id="toggleExpandButton">Expand</button>
+      <div class="sidebar" id="sidebar">
+        <div class="timer-box" id="timerBox">
+          <div class="timer-header">
+            <span>Time Since Last Call</span>
+            <button id="toggleTimerBtn" class="timer-toggle-btn">&#9650;</button>
+          </div>
+          <div class="timer-display" id="timerDisplay">00:00</div>
+        </div>
+
+        <div class="called-container" id="calledContainer">
+          <h3>Called Elements</h3>
+          <ul id="calledList"></ul>
+          <button class="expand-btn" id="toggleExpandButton">Expand</button>
+        </div>
       </div>
     </div>
 

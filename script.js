@@ -269,16 +269,79 @@ let desiredCollapseHeight = 0; // global variable for our desired collapse heigh
 let isExpanded = false;
 let rowHeight = 40; // Reduced row height for compact view
 let keyBuffer = ""; // Global buffer for secret keyboard shortcuts
-let callTimer = null;
-let secondsSinceLastCall = 0;
+let timerInterval = null;
+let secondsElapsed = 0;
+let isTimerCollapsed = false;
 
+function formatTime(seconds) {
+  const mins = Math.floor(seconds / 60);
+  const secs = seconds % 60;
+  return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+}
+
+function updateTimerDisplay() {
+  const display = document.getElementById('timerDisplay');
+  if (display) {
+    display.textContent = formatTime(secondsElapsed);
+  }
+}
+
+function startTimer() {
+  stopTimer(); // Ensure no multiple intervals
+  secondsElapsed = 0;
+  updateTimerDisplay();
+  timerInterval = setInterval(() => {
+    secondsElapsed++;
+    updateTimerDisplay();
+  }, 1000);
+}
+
+function stopTimer() {
+  if (timerInterval) {
+    clearInterval(timerInterval);
+    timerInterval = null;
+  }
+}
+
+function resetTimer() {
+  stopTimer();
+  secondsElapsed = 0;
+  updateTimerDisplay();
+}
+
+function toggleTimer() {
+  const timerBox = document.getElementById('timerBox');
+  const toggleBtn = document.getElementById('toggleTimerBtn');
+  isTimerCollapsed = !isTimerCollapsed;
+
+  if (isTimerCollapsed) {
+    timerBox.classList.add('collapsed');
+    toggleBtn.innerHTML = '&#9660;'; // Down arrow
+  } else {
+    timerBox.classList.remove('collapsed');
+    toggleBtn.innerHTML = '&#9650;'; // Up arrow
+  }
+  adjustSidebarLayout(); // Update heights immediately
+}
 
 function adjustSidebarLayout() {
+  const sidebar = document.getElementById('sidebar');
+  const timerBox = document.getElementById('timerBox');
   const calledContainer = document.getElementById('calledContainer');
   const tableWrapper = document.querySelector('.table-wrapper');
-  if (!calledContainer || !tableWrapper) return;
 
-  desiredCollapseHeight = tableWrapper.offsetHeight - 20;
+  if (!sidebar || !timerBox || !calledContainer || !tableWrapper) return;
+
+  // The sidebar should match the table height
+  const totalAvailableHeight = tableWrapper.offsetHeight;
+
+  // Calculate how much space is left for the called elements list
+  // Substract timerBox height, gap (15px), and a small safety buffer (4px)
+  const timerHeight = timerBox.offsetHeight;
+  const gap = 15;
+  const buffer = 4;
+  desiredCollapseHeight = totalAvailableHeight - timerHeight - gap - buffer;
+
   if (!isExpanded) {
     calledContainer.style.height = desiredCollapseHeight + "px";
   }
@@ -308,12 +371,9 @@ function initBingoCaller() {
   adjustSidebarLayout();
   isExpanded = false;
   toggleExpandButton.textContent = "Expand";
+  resetTimer();
   assignFamilies();
-  stopCallTimer();
-  secondsSinceLastCall = 0;
-  updateTimerDisplay();
 }
-
 
 function checkOverflow() {
   const calledContainer = document.getElementById('calledContainer');
@@ -362,31 +422,6 @@ function showCustomMessageBox(message, type = 'info', callback = null) {
   });
 }
 
-function startCallTimer() {
-  stopCallTimer();
-  secondsSinceLastCall = 0;
-  updateTimerDisplay();
-  callTimer = setInterval(() => {
-    secondsSinceLastCall++;
-    updateTimerDisplay();
-  }, 1000);
-}
-
-function stopCallTimer() {
-  if (callTimer) {
-    clearInterval(callTimer);
-    callTimer = null;
-  }
-}
-
-function updateTimerDisplay() {
-  const display = document.getElementById('timerDisplay');
-  if (!display) return;
-  const mins = Math.floor(secondsSinceLastCall / 60);
-  const secs = secondsSinceLastCall % 60;
-  display.textContent = `${mins}:${secs.toString().padStart(2, '0')}`;
-}
-
 function setupBingoCallerListeners() {
   const callButton = document.getElementById('callButton');
   const resetButton = document.getElementById('resetButton'); // This is the original reset button
@@ -411,24 +446,7 @@ function setupBingoCallerListeners() {
 
   gameModeSelector.addEventListener('change', initBingoCaller);
   window.addEventListener('resize', adjustSidebarLayout);
-
-  // Timer UI Listeners
-  const minimizeBtn = document.getElementById('minimizeTimerBtn');
-  const maximizeBtn = document.getElementById('maximizeTimerBtn');
-  const timerContainer = document.getElementById('timerContainer');
-
-  minimizeBtn.addEventListener('click', () => {
-    timerContainer.classList.add('minimized');
-    maximizeBtn.classList.remove('hidden');
-  });
-
-  maximizeBtn.addEventListener('click', () => {
-    timerContainer.classList.remove('minimized');
-    maximizeBtn.classList.add('hidden');
-  });
-
-
-  makeDraggable(document.getElementById('callTimerCard'));
+  document.getElementById('toggleTimerBtn').addEventListener('click', toggleTimer);
 
   function handleCall(atomicNumber) {
     const currentElementDisplay = document.getElementById('currentElementDisplay');
@@ -463,12 +481,11 @@ function setupBingoCallerListeners() {
     currentElement = atomicNumber;
     if (atomicNumber !== null) {
       currentElementDisplay.textContent = elementDetails[atomicNumber].name;
-      startCallTimer(); // Start the timer on a new call
+      startTimer(); // Start/Restart timer on each call
     } else {
-      stopCallTimer(); // Stop if no element (e.g. all called)
+      stopTimer(); // Stop timer if no more elements
     }
   }
-
 
   callButton.addEventListener('click', function () {
     if (remainingElements.length === 0) {
@@ -616,75 +633,6 @@ function setupBingoCallerListeners() {
   modalOverlay.addEventListener('click', function (e) {
     if (e.target === modalOverlay) hideElementDetailsModal();
   });
-}
-
-/**
- * Makes an element draggable via mouse or touch.
- * @param {HTMLElement} elmnt - The element to make draggable.
- */
-function makeDraggable(elmnt) {
-  if (!elmnt) return;
-  let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
-
-  // Use the entire element for dragging, but ignore clicks on interactive buttons
-  elmnt.addEventListener('mousedown', dragMouseDown);
-  elmnt.addEventListener('touchstart', dragTouchStart, { passive: false });
-
-  function dragMouseDown(e) {
-    // If we're clicking a button inside, let the button handle it.
-    if (e.target.tagName.toLowerCase() === 'button') return;
-
-    e.preventDefault();
-    // get the mouse cursor position at startup:
-    pos3 = e.clientX;
-    pos4 = e.clientY;
-    document.addEventListener('mouseup', closeDragElement);
-    document.addEventListener('mousemove', elementDrag);
-    elmnt.style.transition = 'none'; // Disable transition while dragging for smoothness
-  }
-
-  function dragTouchStart(e) {
-    if (e.target.tagName.toLowerCase() === 'button') return;
-
-    const touch = e.touches[0];
-    pos3 = touch.clientX;
-    pos4 = touch.clientY;
-    document.addEventListener('touchend', closeDragElement);
-    document.addEventListener('touchmove', elementTouchDrag, { passive: false });
-    elmnt.style.transition = 'none';
-  }
-
-  function elementDrag(e) {
-    e.preventDefault();
-    // calculate the new cursor position:
-    pos1 = pos3 - e.clientX;
-    pos2 = pos4 - e.clientY;
-    pos3 = e.clientX;
-    pos4 = e.clientY;
-    // set the element's new position:
-    elmnt.style.top = (elmnt.offsetTop - pos2) + "px";
-    elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
-  }
-
-  function elementTouchDrag(e) {
-    e.preventDefault(); // Prevent scrolling while dragging
-    const touch = e.touches[0];
-    pos1 = pos3 - touch.clientX;
-    pos2 = pos4 - touch.clientY;
-    pos3 = touch.clientX;
-    pos4 = touch.clientY;
-    elmnt.style.top = (elmnt.offsetTop - pos2) + "px";
-    elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
-  }
-
-  function closeDragElement() {
-    // stop moving when mouse button is released:
-    document.removeEventListener('mouseup', closeDragElement);
-    document.removeEventListener('mousemove', elementDrag);
-    document.removeEventListener('touchend', closeDragElement);
-    document.removeEventListener('touchmove', elementTouchDrag);
-    elmnt.style.transition = ''; // Restore transition
-  }
 }
 
 
