@@ -19,6 +19,14 @@
       <button class="menu-close" id="menuClose">&times;</button>
       <button id="showCallerBtn">Bingo Caller</button>
       <button id="showGeneratorBtn">Card Generator</button>
+      <div class="menu-section">
+        <label for="gameMode">Elements to Call:</label>
+        <select id="gameMode" class="menu-select">
+          <option value="fiftySix" selected>56 Elements</option>
+          <option value="top70">70 Elements</option>
+          <option value="all">All Elements</option>
+        </select>
+      </div>
     </div>
   </div>
 
@@ -26,23 +34,15 @@
   <div id="bingoCallerPage" class="bingo-caller-page">
     <div class="header">
       <button class="menu-button" id="menuButtonCaller">&#9776;</button> <!-- Hamburger icon for Caller page -->
-      <div class="current" id="currentElementDisplay">
-        Press "Call Next Element" to start!
-      </div>
-      <div class="header-buttons">
-        <button id="callButton">Call Next Element</button>
-        <button id="resetButton">Reset</button>
-        <!-- Game mode selector added here -->
-        <select id="gameMode">
-          <option value="fiftySix" selected>56 Elements</option>
-          <option value="top70">70 Elements</option>
-          <option value="all">All Elements</option>
-        </select>
-      </div>
+      <div class="header-title">Element BINGO!</div>
     </div>
 
     <div class="main">
       <div class="table-wrapper">
+        <div class="call-display-container" id="callDisplayContainer">
+          <div class="call-label">CURRENT CALL</div>
+          <div class="call-name" id="currentElementDisplay">Ready to Play</div>
+        </div>
         <div class="table-container" id="tableContainer">
           <table class="periodic-table">
             <!-- Period 1 -->
@@ -452,23 +452,15 @@
             </tr>
           </table>
         </div>
-        <!-- Legend for element families -->
-        <div class="legend">
-          <div class="legend-item"><span class="legend-color alkali"></span> Alkali Metals</div>
-          <div class="legend-item"><span class="legend-color alkaline-earth"></span> Alkaline Earth Metals</div>
-          <div class="legend-item"><span class="legend-color transition"></span> Transition Metals</div>
-          <div class="legend-item"><span class="legend-color basic-metal"></span> Basic Metals</div>
-          <div class="legend-item"><span class="legend-color metalloid"></span> Metalloids</div>
-          <div class="legend-item"><span class="legend-color nonmetal"></span> Nonmetals</div>
-          <div class="legend-item"><span class="legend-color halogen"></span> Halogens</div>
-          <div class="legend-item"><span class="legend-color noble"></span> Noble Gases</div>
-          <div class="legend-item"><span class="legend-color lanthanide"></span> Lanthanides</div>
-          <div class="legend-item"><span class="legend-color actinide"></span> Actinides</div>
-          <div class="legend-item"><span class="legend-color unknown"></span> Unknown / Superheavy</div>
-        </div>
       </div>
 
       <div class="sidebar" id="sidebar">
+        <div class="controls-box">
+          <div class="button-row">
+            <button id="callButton" class="control-btn">Call</button>
+            <button id="resetButton" class="control-btn">Reset</button>
+          </div>
+        </div>
         <div class="timer-box" id="timerBox">
           <div class="timer-header">
             <span>Time Since Last Call</span>

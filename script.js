@@ -419,7 +419,10 @@ function initBingoCaller() {
     }
   }
   currentElement = null;
-  currentElementDisplay.textContent = 'Element BINGO!';
+  currentElementDisplay.textContent = 'Ready to Play';
+
+  // Update header display if it exists (for the "Ready to Play" header box)
+
   calledList.innerHTML = '';
   adjustSidebarLayout();
   isExpanded = false;
@@ -554,10 +557,14 @@ function setupBingoCallerListeners() {
 
     // 3. Mark the new element as current
     currentElement = atomicNumber;
+
     if (atomicNumber !== null) {
-      currentElementDisplay.textContent = elementDetails[atomicNumber].name;
+      const element = elementDetails[atomicNumber];
+      currentElementDisplay.textContent = element.name;
+
       startTimer(); // Start/Restart timer on each call
     } else {
+      currentElementDisplay.textContent = 'Game Over';
       stopTimer(); // Stop timer if no more elements
     }
   }

@@ -58,7 +58,7 @@ body {
 .menu-button {
   background: none;
   border: none;
-  font-size: 30px;
+  font-size: 24px;
   cursor: pointer;
   padding: 5px 10px;
   color: var(--text-color);
@@ -131,6 +131,30 @@ body {
   margin-bottom: 20px;
 }
 
+.menu-section {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid #eee;
+}
+
+.menu-section label {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  color: #666;
+  margin-bottom: 8px;
+}
+
+.menu-select {
+  width: 100%;
+  padding: 10px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background-color: #fff;
+  cursor: pointer;
+}
+
 /* --- Element Bingo Caller Styles (from ElementBingo.html) --- */
 .bingo-caller-page {
   display: block;
@@ -142,47 +166,20 @@ body {
   justify-content: space-between;
   align-items: center;
   background: #ffffff;
-  padding: 10px 20px;
+  padding: 5px 20px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
   position: relative;
   top: 0;
   z-index: 10;
 }
 
-.header-buttons {
-  display: flex;
-  gap: 10px;
-  align-items: center;
-}
-
-.header-buttons button,
-.header-buttons select {
-  font-size: 18px;
-  padding: 8px 16px;
-  background-color: #4CAF50;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-}
-
-.header-buttons button:hover,
-.header-buttons select:hover {
-  background-color: #45a049;
-}
-
-.current {
-  font-size: 48px;
+.header-title {
+  font-size: 24px;
   font-weight: bold;
-  color: var(--text-color);
-  text-align: center;
-  /* Center the text within this flex item */
-  white-space: nowrap;
-  /* Prevent text wrapping */
+  color: #333;
   flex-grow: 1;
-  /* Allow it to grow and take available space */
-  margin: 0 auto;
-  /* This will center it within the available flex space */
+  text-align: left;
+  margin-left: 15px;
 }
 
 /* Main layout: two columns */
@@ -212,6 +209,38 @@ table.periodic-table {
   border-spacing: 4px;
   margin: 0 auto;
   background: transparent;
+}
+
+/* Call Display Container (New) */
+.call-display-container {
+  border: 2px dashed #ccc;
+  border-radius: 12px;
+  padding: 5px;
+  margin-bottom: 8px;
+  text-align: center;
+  background-color: #fcfcfc;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60px;
+  /* Approximately match the height of the removed legend section */
+}
+
+.call-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: #666;
+  margin-bottom: 0px;
+}
+
+.call-name {
+  font-size: 56px;
+  /* Reduced slightly to save vertical space */
+  font-weight: bold;
+  color: #333;
+  margin-top: 0px;
+  line-height: 1.0;
 }
 
 /* Family color classes */
@@ -321,77 +350,6 @@ table.periodic-table td.current {
   box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.1);
 }
 
-/* Legend styles using CSS Grid */
-.legend {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
-  gap: 5px;
-  width: 100%;
-  box-sizing: border-box;
-  margin: 5px auto 0;
-}
-
-.legend-item {
-  display: flex;
-  align-items: center;
-  padding: 3px 8px;
-  border-radius: 20px;
-  background: #e0e0e0;
-  font-size: 10px;
-}
-
-.legend-color {
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  display: inline-block;
-  margin-right: 8px;
-}
-
-.legend-color.alkali {
-  background-color: var(--alkali-color);
-}
-
-.legend-color.alkaline-earth {
-  background-color: var(--alkaline-earth-color);
-}
-
-.legend-color.transition {
-  background-color: var(--transition-color);
-}
-
-.legend-color.basic-metal {
-  background-color: var(--basic-metal-color);
-}
-
-.legend-color.metalloid {
-  background-color: var(--metalloid-color);
-}
-
-.legend-color.nonmetal {
-  background-color: var(--nonmetal-color);
-}
-
-.legend-color.halogen {
-  background-color: var(--halogen-color);
-}
-
-.legend-color.noble {
-  background-color: var(--noble-gas-color);
-}
-
-.legend-color.lanthanide {
-  background-color: var(--lanthanide-color);
-}
-
-.legend-color.actinide {
-  background-color: var(--actinide-color);
-}
-
-.legend-color.unknown {
-  background-color: var(--unknown-color);
-}
-
 /* Sidebar wrapper */
 .sidebar {
   flex: 0 1 min(28vw, 450px);
@@ -401,6 +359,44 @@ table.periodic-table td.current {
   display: flex;
   flex-direction: column;
   gap: 15px;
+}
+
+.controls-box {
+  background: #ffffff;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  padding: 15px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.button-row {
+  display: flex;
+  gap: 10px;
+}
+
+.button-row .control-btn {
+  flex: 1;
+}
+
+.control-btn {
+  width: 100%;
+  font-size: 18px;
+  padding: 12px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  box-sizing: border-box;
+  text-align: center;
+  font-weight: 600;
+}
+
+.control-btn:hover {
+  background-color: #45a049;
 }
 
 .timer-box {
@@ -550,6 +546,10 @@ table.periodic-table td.current {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 5px;
+  max-height: 380px;
+  /* Adjust based on viewport needs */
+  overflow-y: auto;
+  padding-right: 5px;
 }
 
 .called-container li {
