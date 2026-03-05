@@ -478,8 +478,7 @@ function setupBingoCallerListeners() {
           } else if (currentElement === atomicNumber) {
             // Already current, do nothing or show message
           } else {
-            // Already called
-            showCustomMessageBox(`${elementDetails[atomicNumber].name} has already been called.`);
+            // Already called - fail silently
           }
         }
       }
