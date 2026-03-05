@@ -484,12 +484,39 @@
         </div>
 
         <div class="stats-box" id="statsBox">
-          <div class="stats-header">Next Call Win Probability</div>
+          <div class="stats-header">
+            Next Call Win Probability
+            <button class="info-btn" id="probInfoBtn" title="How is this calculated?">i</button>
+          </div>
           <div class="stats-value" id="winProbability">0%</div>
           <div class="stats-subtext" id="averageProgress">On average, players are 5 elements away from a Bingo.</div>
         </div>
       </div>
     </div>
+
+    <!-- Probability Info Modal -->
+    <div id="probInfoModal" class="reset-modal-overlay hidden">
+      <div class="reset-modal-content">
+        <h2 class="text-xl font-bold text-gray-900 mb-4">Probability Calculation</h2>
+        <div class="text-gray-700 mb-6 text-left" style="font-size: 14px; line-height: 1.5;">
+          <p>This data is based on a <strong>statistical model</strong> assuming:</p>
+          <ul style="margin: 10px 0; padding-left: 20px;">
+            <li>A standard <strong>5x5 grid</strong> card.</li>
+            <li>A group size of <strong>26 players</strong>.</li>
+            <li>Random distribution of elements on cards.</li>
+          </ul>
+          <p>The "Probability" shows the likelihood that <em>at least one</em> player will achieve a Bingo on the next
+            call. The "Average Progress" estimates how close the typical player is to finishing their best line.</p>
+          <p style="margin-top: 10px; font-style: italic; color: #666;">Note: This does not track actual student cards
+            in real-time; it is a mathematical approximation of game "heat."</p>
+        </div>
+        <button id="closeProbInfoBtn"
+          class="px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-75 transition duration-200 ease-in-out">
+          Understood
+        </button>
+      </div>
+    </div>
+
 
     <!-- Modal for element details -->
     <div class="modal-overlay" id="elementModal">

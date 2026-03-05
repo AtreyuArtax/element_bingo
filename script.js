@@ -279,11 +279,11 @@ let isTimerCollapsed = false;
 function getWinProbability(callsMade, totalElements) {
   if (callsMade < 4) return 0; // Impossible to win in <4 calls (5 including free space usually, but 4 is safe)
 
-  // Adjusted midpoints based on total elements
-  // For 56 elements, midpoint is around 18-22 calls
-  // For 118 elements, midpoint is around 40-45 calls
-  const m = totalElements === 56 ? 20 : 42;
-  const k = 0.2; // Steepness
+  // Adjusted midpoints based on total elements for a class of ~26
+  // For 56 elements, midpoint is around 22-24 calls
+  // For 118 elements, midpoint is around 44-46 calls
+  const m = totalElements === 56 ? 23 : 45;
+  const k = 0.18; // Slightly lower steepness for a smaller group
 
   const probability = 1 / (1 + Math.exp(-k * (callsMade - m)));
   return Math.min(Math.round(probability * 100), 100);
@@ -501,6 +501,26 @@ function setupBingoCallerListeners() {
   gameModeSelector.addEventListener('change', initBingoCaller);
   window.addEventListener('resize', adjustSidebarLayout);
   document.getElementById('toggleTimerBtn').addEventListener('click', toggleTimer);
+
+  // New: Probability Info Modal
+  const probInfoModal = document.getElementById('probInfoModal');
+  const probInfoBtn = document.getElementById('probInfoBtn');
+  const closeProbInfoBtn = document.getElementById('closeProbInfoBtn');
+
+  probInfoBtn.addEventListener('click', () => {
+    probInfoModal.classList.remove('hidden');
+  });
+
+  closeProbInfoBtn.addEventListener('click', () => {
+    probInfoModal.classList.add('hidden');
+  });
+
+  probInfoModal.addEventListener('click', (e) => {
+    if (e.target === probInfoModal) {
+      probInfoModal.classList.add('hidden');
+    }
+  });
+
 
   function handleCall(atomicNumber) {
     const currentElementDisplay = document.getElementById('currentElementDisplay');
