@@ -269,6 +269,9 @@ let desiredCollapseHeight = 0; // global variable for our desired collapse heigh
 let isExpanded = false;
 let rowHeight = 40; // Reduced row height for compact view
 let keyBuffer = ""; // Global buffer for secret keyboard shortcuts
+let callTimer = null;
+let secondsSinceLastCall = 0;
+
 
 function adjustSidebarLayout() {
   const calledContainer = document.getElementById('calledContainer');
@@ -306,7 +309,11 @@ function initBingoCaller() {
   isExpanded = false;
   toggleExpandButton.textContent = "Expand";
   assignFamilies();
+  stopCallTimer();
+  secondsSinceLastCall = 0;
+  updateTimerDisplay();
 }
+
 
 function checkOverflow() {
   const calledContainer = document.getElementById('calledContainer');
@@ -355,6 +362,31 @@ function showCustomMessageBox(message, type = 'info', callback = null) {
   });
 }
 
+function startCallTimer() {
+  stopCallTimer();
+  secondsSinceLastCall = 0;
+  updateTimerDisplay();
+  callTimer = setInterval(() => {
+    secondsSinceLastCall++;
+    updateTimerDisplay();
+  }, 1000);
+}
+
+function stopCallTimer() {
+  if (callTimer) {
+    clearInterval(callTimer);
+    callTimer = null;
+  }
+}
+
+function updateTimerDisplay() {
+  const display = document.getElementById('timerDisplay');
+  if (!display) return;
+  const mins = Math.floor(secondsSinceLastCall / 60);
+  const secs = secondsSinceLastCall % 60;
+  display.textContent = `${mins}:${secs.toString().padStart(2, '0')}`;
+}
+
 function setupBingoCallerListeners() {
   const callButton = document.getElementById('callButton');
   const resetButton = document.getElementById('resetButton'); // This is the original reset button
@@ -379,6 +411,22 @@ function setupBingoCallerListeners() {
 
   gameModeSelector.addEventListener('change', initBingoCaller);
   window.addEventListener('resize', adjustSidebarLayout);
+
+  // Timer UI Listeners
+  const minimizeBtn = document.getElementById('minimizeTimerBtn');
+  const maximizeBtn = document.getElementById('maximizeTimerBtn');
+  const timerContainer = document.getElementById('timerContainer');
+
+  minimizeBtn.addEventListener('click', () => {
+    timerContainer.classList.add('minimized');
+    maximizeBtn.classList.remove('hidden');
+  });
+
+  maximizeBtn.addEventListener('click', () => {
+    timerContainer.classList.remove('minimized');
+    maximizeBtn.classList.add('hidden');
+  });
+
 
   function handleCall(atomicNumber) {
     const currentElementDisplay = document.getElementById('currentElementDisplay');
@@ -413,8 +461,12 @@ function setupBingoCallerListeners() {
     currentElement = atomicNumber;
     if (atomicNumber !== null) {
       currentElementDisplay.textContent = elementDetails[atomicNumber].name;
+      startCallTimer(); // Start the timer on a new call
+    } else {
+      stopCallTimer(); // Stop if no element (e.g. all called)
     }
   }
+
 
   callButton.addEventListener('click', function () {
     if (remainingElements.length === 0) {
