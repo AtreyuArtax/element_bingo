@@ -280,7 +280,7 @@ let timerInterval = null;
 let secondsElapsed = 0;
 let isTimerCollapsed = false;
 
-// Pre-calculated probability curve for Bingo (approximate for class size ~30 on 5x5 grid)
+// Pre-calculated probability curve for Bingo (approximate for class size ~26-30 on 5x5 grid)
 // This is a simplified logistical curve: P(x) = 1 / (1 + e^-(k(x-m)))
 // m is the midpoint (where P = 0.5), k is the steepness
 function getWinProbability(callsMade, totalElements) {
@@ -288,8 +288,14 @@ function getWinProbability(callsMade, totalElements) {
 
   // Adjusted midpoints based on total elements for a class of ~26
   // For 56 elements, midpoint is around 22-24 calls
+  // For 70 elements, midpoint is around 28-30 calls
   // For 118 elements, midpoint is around 44-46 calls
-  const m = totalElements === 56 ? 23 : 45;
+  let m = 45;
+  if (totalElements === 56) {
+    m = 23;
+  } else if (totalElements === 70) {
+    m = 29;
+  }
   const k = 0.18; // Slightly lower steepness for a smaller group
 
   const probability = 1 / (1 + Math.exp(-k * (callsMade - m)));
@@ -315,7 +321,12 @@ function updateWinProbability() {
   // Update Average Progress
   const progressDisplay = document.getElementById('averageProgress');
   if (progressDisplay) {
-    const m = totalElements === 56 ? 20 : 42;
+    let m = 42;
+    if (totalElements === 56) {
+      m = 20;
+    } else if (totalElements === 70) {
+      m = 26;
+    }
     // Simple estimation: starts at 5, drops to 1 near midpoint
     let away = Math.max(1, Math.round(5 - (callsMade / m) * 4));
     if (prob > 80) away = 1; // Heavy bias toward 1 when prob is high
@@ -397,12 +408,12 @@ function adjustSidebarLayout() {
   const controlsHeight = controlsBox ? controlsBox.offsetHeight : 0;
   const timerHeight = timerBox.offsetHeight || 0;
   const statsHeight = statsBox.offsetHeight || 0;
-  const gap = 15;
-  const numGaps = controlsBox ? 3 : 2; // 3 gaps if controlsBox is present
+  const gap = 10;
+  const numGaps = controlsBox ? 3 : 2;
   const buffer = 4;
 
   // Ensure we don't end up with negative or tiny height
-  desiredCollapseHeight = Math.max(totalAvailableHeight - controlsHeight - timerHeight - statsHeight - (gap * numGaps) - buffer, 100);
+  desiredCollapseHeight = Math.max(totalAvailableHeight - controlsHeight - timerHeight - statsHeight - (gap * numGaps) - buffer, 80);
 
   if (!isExpanded) {
     calledContainer.style.height = desiredCollapseHeight + "px";
@@ -534,6 +545,64 @@ function setupBingoCallerListeners() {
     }
   });
 
+  // Teacher Guide & Shortcuts Modal
+  const instructionsModal = document.getElementById('instructionsModal');
+  const helpButton = document.getElementById('helpButton');
+  const showHelpBtn = document.getElementById('showHelpBtn');
+  const instructionsClose = document.getElementById('instructionsClose');
+  const closeInstructionsBtn = document.getElementById('closeInstructionsBtn');
+
+  function openInstructions() {
+    if (instructionsModal) instructionsModal.classList.remove('hidden');
+    hideMenu();
+  }
+
+  function closeInstructions() {
+    if (instructionsModal) instructionsModal.classList.add('hidden');
+  }
+
+  if (helpButton) helpButton.addEventListener('click', openInstructions);
+  if (showHelpBtn) showHelpBtn.addEventListener('click', openInstructions);
+  if (instructionsClose) instructionsClose.addEventListener('click', closeInstructions);
+  if (closeInstructionsBtn) closeInstructionsBtn.addEventListener('click', closeInstructions);
+
+  if (instructionsModal) {
+    instructionsModal.addEventListener('click', (e) => {
+      if (e.target === instructionsModal) closeInstructions();
+    });
+  }
+
+  // Fullscreen Button
+  const fullscreenButton = document.getElementById('fullscreenButton');
+  function toggleFullscreen() {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch(err => {
+        console.warn(`Could not enter fullscreen: ${err.message}`);
+      });
+    } else {
+      if (document.exitFullscreen) {
+        document.exitFullscreen();
+      }
+    }
+  }
+
+  if (fullscreenButton) {
+    fullscreenButton.addEventListener('click', toggleFullscreen);
+  }
+
+  document.addEventListener('fullscreenchange', () => {
+    if (!fullscreenButton) return;
+    if (document.fullscreenElement) {
+      fullscreenButton.innerHTML = '&#x2715;'; // Exit X symbol
+      fullscreenButton.title = 'Exit Fullscreen (Esc)';
+      fullscreenButton.classList.add('active');
+    } else {
+      fullscreenButton.innerHTML = '&#x26F6;'; // ⛶ Fullscreen symbol
+      fullscreenButton.title = 'Toggle Fullscreen (Projector Mode)';
+      fullscreenButton.classList.remove('active');
+    }
+    setTimeout(adjustSidebarLayout, 150);
+  });
 
   function handleCall(atomicNumber) {
     const currentElementDisplay = document.getElementById('currentElementDisplay');
@@ -552,7 +621,8 @@ function setupBingoCallerListeners() {
 
         // Add to the called list
         const li = document.createElement('li');
-        li.textContent = elementDetails[currentElement].name;
+        li.textContent = `${elementDetails[currentElement].symbol} • ${elementDetails[currentElement].name}`;
+        li.title = `${elementDetails[currentElement].name} (Atomic #${currentElement})`;
 
         // Remove 'last-called' from all existing list items
         calledList.querySelectorAll('li').forEach(item => item.classList.remove('last-called'));
@@ -604,6 +674,15 @@ function setupBingoCallerListeners() {
 
     if (e.key === '1') {
       triggerFireworks();
+      return;
+    }
+
+    if (e.key === 'Escape' || e.key === 'Esc') {
+      if (instructionsModal) instructionsModal.classList.add('hidden');
+      if (resetConfirmationModal) resetConfirmationModal.classList.add('hidden');
+      if (probInfoModal) probInfoModal.classList.add('hidden');
+      hideElementDetailsModal();
+      hideMenu();
       return;
     }
 
@@ -805,7 +884,7 @@ function updateInfoBox(elementsList) {
   if (k_single_50 > T) k_single_50 = T;
 
   let expectedWinners = numCards * pWinSingle(k_med, T);
-  const infoText = `<strong>Probabilities (Approx.)</strong><br>Using <strong>${T}</strong> elements for <strong>${numCards}</strong> player(s):<br>• ~<strong>${k_med}</strong> calls needed for ≥ 50% chance of <i>any</i> winner.<br>• ~<strong>${k_med}</strong> calls needed for ≥ 50% chance of <i>any</i> winner.<br>• ~<strong>${k_1percent}</strong> calls needed for ≥ 1% chance of <i>any</i> winner.<br>• ~<strong>${k_single_50}</strong> calls needed for ≥ 50% chance for a <i>single</i> card to win.<br>• At the <strong>${k_med}</strong> call mark (~50% overall), expect ~<strong>${expectedWinners.toFixed(2)}</strong> winner(s).`;
+  const infoText = `<strong>Probabilities (Approx.)</strong><br>Using <strong>${T}</strong> elements for <strong>${numCards}</strong> player(s):<br>• ~<strong>${k_med}</strong> calls needed for ≥ 50% chance of <i>any</i> winner.<br>• ~<strong>${k_1percent}</strong> calls needed for ≥ 1% chance of <i>any</i> winner.<br>• ~<strong>${k_single_50}</strong> calls needed for ≥ 50% chance for a <i>single</i> card to win.<br>• At the <strong>${k_med}</strong> call mark (~50% overall), expect ~<strong>${expectedWinners.toFixed(2)}</strong> winner(s).`;
   infoBox.innerHTML = infoText;
 }
 
@@ -987,7 +1066,7 @@ function generatePDFWindow() {
           font-weight: bold;
           aspect-ratio: 1/1;
         }
-        .free { background-color: #eee; !important;}
+        .free { background-color: #eee !important; }
       </style>
     </head>
     <body>

@@ -19,6 +19,7 @@
       <button class="menu-close" id="menuClose">&times;</button>
       <button id="showCallerBtn">Bingo Caller</button>
       <button id="showGeneratorBtn">Card Generator</button>
+      <button id="showHelpBtn">Teacher Guide & Shortcuts</button>
       <div class="menu-section">
         <label for="gameMode">Elements to Call:</label>
         <select id="gameMode" class="menu-select">
@@ -32,16 +33,22 @@
 
   <!-- Bingo Caller Page -->
   <div id="bingoCallerPage" class="bingo-caller-page">
-    <div class="header">
-      <button class="menu-button" id="menuButtonCaller">&#9776;</button> <!-- Hamburger icon for Caller page -->
-      <div class="header-title">Element BINGO!</div>
-    </div>
-
     <div class="main">
       <div class="table-wrapper">
         <div class="call-display-container" id="callDisplayContainer">
-          <div class="call-label">CURRENT CALL</div>
-          <div class="call-name" id="currentElementDisplay">Ready to Play</div>
+          <div class="call-left">
+            <button class="nav-chip" id="menuButtonCaller" title="Menu & Card Generator">
+              <span class="hamburger-icon">&#9776;</span>
+              <span class="chip-title">Element BINGO</span>
+            </button>
+          </div>
+          <div class="call-center">
+            <div class="call-label">CURRENT CALL</div>
+            <div class="call-name" id="currentElementDisplay">Ready to Play</div>
+          </div>
+          <div class="call-right">
+            <button class="icon-button" id="fullscreenButton" title="Toggle Fullscreen (Projector Mode)">&#x26F6;</button>
+          </div>
         </div>
         <div class="table-container" id="tableContainer">
           <table class="periodic-table">
@@ -270,10 +277,10 @@
               <td id="elem-78" data-atomic="78" data-name="Platinum" class="transition">
                 Pt<span class="atomic">78</span>
               </td>
-              <td id="elem-79" data-atomic="79" data-name="Gold" class="basic-metal">
+              <td id="elem-79" data-atomic="79" data-name="Gold" class="transition">
                 Au<span class="atomic">79</span>
               </td>
-              <td id="elem-80" data-atomic="80" data-name="Mercury" class="basic-metal">
+              <td id="elem-80" data-atomic="80" data-name="Mercury" class="transition">
                 Hg<span class="atomic">80</span>
               </td>
               <td id="elem-81" data-atomic="81" data-name="Thallium" class="basic-metal">
@@ -488,19 +495,18 @@
 
     <!-- Probability Info Modal -->
     <div id="probInfoModal" class="reset-modal-overlay hidden">
-      <div class="reset-modal-content">
-        <h2 class="text-xl font-bold text-gray-900 mb-4">Probability Calculation</h2>
-        <div class="text-gray-700 mb-6 text-left" style="font-size: 14px; line-height: 1.5;">
+      <div class="reset-modal-content info-modal-content">
+        <h2>Probability Calculation</h2>
+        <div class="info-modal-body">
           <p>This data is based on a <strong>statistical model</strong> assuming:</p>
-          <ul style="margin: 10px 0; padding-left: 20px;">
-            <li>A standard <strong>5x5 grid</strong> card.</li>
-            <li>A group size of <strong>26 players</strong>.</li>
-            <li>Random distribution of elements on cards.</li>
+          <ul class="info-list">
+            <li>A standard <strong>5x5 grid</strong> card</li>
+            <li>A group size of <strong>26 players</strong></li>
+            <li>Random distribution of elements on cards</li>
           </ul>
           <p>The "Probability" shows the likelihood that <em>at least one</em> player will achieve a Bingo on the next
             call. The "Average Progress" estimates how close the typical player is to finishing their best line.</p>
-          <p style="margin-top: 10px; font-style: italic; color: #666;">Note: This does not track actual student cards
-            in real-time; it is a mathematical approximation of game "heat."</p>
+          <p class="info-note">Note: This does not track actual student cards in real-time; it is a mathematical approximation of game "heat."</p>
         </div>
         <button id="closeProbInfoBtn" class="modal-confirm-btn">
           Understood
@@ -578,6 +584,39 @@
           Reset Anyway
         </button>
       </div>
+    </div>
+  </div>
+
+  <!-- Teacher Guide & Shortcuts Modal Structure -->
+  <div id="instructionsModal" class="reset-modal-overlay hidden">
+    <div class="reset-modal-content instructions-modal-content">
+      <button class="modal-close" id="instructionsClose">&times;</button>
+      <h2 class="text-xl font-bold text-gray-900 mb-3">Teacher Guide & Shortcuts</h2>
+      <div class="instructions-body">
+        <div class="instruction-section">
+          <h4>Active Recall (Delayed Shading)</h4>
+          <p>When you click <strong>Call</strong> (or press <kbd>Space</kbd>), the element <em>name</em> appears in the current call banner, but the periodic table cell <strong>is not shaded yet</strong>. Students who know the symbol get a jump on marking their cards, while others have time to search the periodic table or a reference sheet. On the <em>next</em> call, the previous element turns white with a red highlight on the board.</p>
+        </div>
+        <div class="instruction-section">
+          <h4>Keyboard Shortcuts</h4>
+          <ul>
+            <li><kbd>Space</kbd> : Call next random element</li>
+            <li><kbd>1</kbd> : Trigger celebration fireworks (manual trigger when a student calls BINGO!)</li>
+            <li><kbd>Symbol</kbd> + <kbd>Enter</kbd> : Secretly force-call an element (e.g. type <code>Au</code> and press <kbd>Enter</kbd> to call Gold)</li>
+            <li><kbd>Esc</kbd> : Close any open dialog or popup</li>
+          </ul>
+        </div>
+        <div class="instruction-section">
+          <h4>Interactive Periodic Table</h4>
+          <ul>
+            <li><strong>Click any element cell</strong> to view its atomic number, mass, common ionic charges, STP state, and Bohr electron diagram.</li>
+            <li><strong>Pacing Timer</strong> tracks elapsed seconds since the last call to help you gauge classroom rhythm.</li>
+          </ul>
+        </div>
+      </div>
+      <button id="closeInstructionsBtn" class="modal-confirm-btn" style="margin-top: 15px;">
+        Got It
+      </button>
     </div>
   </div>
 
