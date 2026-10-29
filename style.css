@@ -119,14 +119,35 @@ body {
   transition: all 0.15s;
 }
 
+/* Menu Header and Title */
+.menu-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.menu-title {
+  font-size: 19px;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0;
+  letter-spacing: -0.3px;
+}
+
 /* Explicitly override standard button styles for the close button */
 .menu-content button.menu-close {
   width: auto;
-  padding: 0;
+  padding: 2px 6px;
   margin-bottom: 0;
   background-color: transparent;
   color: #64748b;
   border: none;
+  font-size: 26px;
+  line-height: 1;
+  border-radius: 4px;
 }
 
 .menu-content button:hover {
@@ -137,24 +158,18 @@ body {
 
 .menu-content button.menu-close:hover {
   color: #0f172a;
-  background-color: transparent;
+  background-color: #f1f5f9;
 }
 
 .menu-close {
   background: none;
   border: none;
-  font-size: 30px;
-  color: #333;
+  font-size: 26px;
+  color: #64748b;
   cursor: pointer;
-  position: absolute;
-  top: 10px;
-  right: 15px;
   line-height: 1;
-}
-
-/* Add padding to first item so it doesn't overlap the absolute close button */
-.menu-content>button:nth-child(2) {
-  margin-top: 30px;
+  padding: 2px 6px;
+  border-radius: 4px;
 }
 
 .menu-section {
@@ -260,10 +275,10 @@ body {
   display: flex;
   align-items: flex-start;
   justify-content: center;
-  margin: 6px auto;
+  margin: 0 auto;
   gap: 16px;
   max-width: 1500px;
-  padding: 0 12px;
+  padding: 14px 12px 6px;
   box-sizing: border-box;
 }
 
@@ -387,8 +402,8 @@ td.unknown {
 }
 
 table.periodic-table td {
-  width: min(calc((100vw - 320px) / 18.5), calc((100vh - 115px) / 10), 72px);
-  height: min(calc((100vw - 320px) / 18.5), calc((100vh - 115px) / 10), 72px);
+  width: min(calc((100vw - 320px) / 18.5), calc((100vh - 128px) / 10), 72px);
+  height: min(calc((100vw - 320px) / 18.5), calc((100vh - 128px) / 10), 72px);
   min-width: 44px;
   min-height: 44px;
   text-align: center;
@@ -445,12 +460,21 @@ table.periodic-table td span.atomic {
   font-weight: 500;
 }
 
-/* Called/current indicators: use a black border with white cell */
+/* Called/current indicators: use a black border with white cell, dimmed */
 table.periodic-table td.called,
 table.periodic-table td.current {
   border: 2px solid #333;
   background-color: white;
   box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.1);
+  opacity: 0.55;
+  transition: opacity 0.2s, transform 0.15s, box-shadow 0.15s;
+}
+
+table.periodic-table td.called:hover,
+table.periodic-table td.current:hover {
+  opacity: 1;
+  transform: scale(1.1);
+  z-index: 5;
 }
 
 /* Sidebar wrapper */
@@ -1009,6 +1033,176 @@ td.recently-called {
   z-index: 10;
   position: relative;
   box-shadow: 0 0 10px rgba(255, 77, 77, 0.5);
+  opacity: 1; /* Highlighted newest call stands out at full opacity */
+}
+
+/* When the teacher disables the extra red outline, the last called element is black and dimmed just like the others */
+body.no-red-outline table.periodic-table td.recently-called {
+  outline: none;
+  box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.1);
+  opacity: 0.55;
+}
+
+body.no-red-outline table.periodic-table td.recently-called:hover {
+  opacity: 1;
+}
+
+/* --- Switch Toggle Styles --- */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 42px;
+  height: 22px;
+  flex-shrink: 0;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #cbd5e1;
+  transition: 0.25s;
+}
+
+.slider.round {
+  border-radius: 22px;
+}
+
+.slider.round:before {
+  position: absolute;
+  content: "";
+  height: 16px;
+  width: 16px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: 0.25s;
+  border-radius: 50%;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+}
+
+.switch input:checked + .slider {
+  background-color: #10b981;
+}
+
+.switch input:focus + .slider {
+  box-shadow: 0 0 1px #10b981;
+}
+
+.switch input:checked + .slider:before {
+  transform: translateX(20px);
+}
+
+/* --- Drawer Settings Section --- */
+.settings-menu-section {
+  margin-top: 15px;
+  padding-top: 15px;
+  border-top: 1px solid #e2e8f0;
+}
+
+.menu-section-header {
+  font-size: 13px;
+  font-weight: 700;
+  color: #64748b;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.menu-setting-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 0;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.menu-setting-item:last-child {
+  border-bottom: none;
+}
+
+.setting-toggle-label {
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+  user-select: none;
+  flex: 1;
+}
+
+.setting-title {
+  font-size: 13px;
+  color: #1e293b;
+  font-weight: 600;
+  line-height: 1.25;
+}
+
+.setting-subtitle {
+  font-size: 11px;
+  color: #64748b;
+  line-height: 1.2;
+}
+
+/* --- Settings Modal Styles --- */
+.settings-modal-content {
+  max-width: 500px;
+  width: 92%;
+  text-align: left;
+  padding: 24px;
+  position: relative;
+  box-sizing: border-box;
+}
+
+.settings-modal-body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 16px 0;
+}
+
+.setting-modal-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 14px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+}
+
+.setting-modal-text {
+  flex: 1;
+}
+
+.setting-modal-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #0f172a;
+  margin-bottom: 3px;
+}
+
+.setting-modal-desc {
+  font-size: 12px;
+  color: #64748b;
+  line-height: 1.35;
+}
+
+.setting-modal-desc code {
+  background: #e2e8f0;
+  padding: 1px 4px;
+  border-radius: 3px;
+  font-size: 11px;
+  color: #0f172a;
 }
 
 /* --- Reset Confirmation Modal Styles --- */

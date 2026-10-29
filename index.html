@@ -16,10 +16,14 @@
   <!-- Hamburger Menu Overlay -->
   <div class="menu-overlay" id="menuOverlay">
     <div class="menu-content">
-      <button class="menu-close" id="menuClose">&times;</button>
+      <div class="menu-header">
+        <h2 class="menu-title">Element BINGO</h2>
+        <button class="menu-close" id="menuClose" aria-label="Close menu">&times;</button>
+      </div>
       <button id="showCallerBtn">Bingo Caller</button>
       <button id="showGeneratorBtn">Card Generator</button>
       <button id="showHelpBtn">Teacher Guide & Shortcuts</button>
+      <button id="showSettingsBtn">Settings</button>
       <div class="menu-section">
         <label for="gameMode">Elements to Call:</label>
         <select id="gameMode" class="menu-select">
@@ -27,6 +31,29 @@
           <option value="top70">70 Elements</option>
           <option value="all">All Elements</option>
         </select>
+      </div>
+      <div class="menu-section settings-menu-section" id="menuSettingsSection">
+        <div class="menu-section-header">Display Settings</div>
+        <div class="menu-setting-item">
+          <label class="setting-toggle-label" for="drawerSettingSymbols">
+            <span class="setting-title">Element Symbols</span>
+            <span class="setting-subtitle">in Called Elements table</span>
+          </label>
+          <label class="switch">
+            <input type="checkbox" id="drawerSettingSymbols" checked>
+            <span class="slider round"></span>
+          </label>
+        </div>
+        <div class="menu-setting-item">
+          <label class="setting-toggle-label" for="drawerSettingRedOutline">
+            <span class="setting-title">Red Outline</span>
+            <span class="setting-subtitle">around last called element</span>
+          </label>
+          <label class="switch">
+            <input type="checkbox" id="drawerSettingRedOutline" checked>
+            <span class="slider round"></span>
+          </label>
+        </div>
       </div>
     </div>
   </div>
@@ -37,10 +64,7 @@
       <div class="table-wrapper">
         <div class="call-display-container" id="callDisplayContainer">
           <div class="call-left">
-            <button class="nav-chip" id="menuButtonCaller" title="Menu & Card Generator">
-              <span class="hamburger-icon">&#9776;</span>
-              <span class="chip-title">Element BINGO</span>
-            </button>
+            <button class="icon-button" id="menuButtonCaller" title="Menu">&#9776;</button>
           </div>
           <div class="call-center">
             <div class="call-label">CURRENT CALL</div>
@@ -595,7 +619,7 @@
       <div class="instructions-body">
         <div class="instruction-section">
           <h4>Active Recall (Delayed Shading)</h4>
-          <p>When you click <strong>Call</strong> (or press <kbd>Space</kbd>), the element <em>name</em> appears in the current call banner, but the periodic table cell <strong>is not shaded yet</strong>. Students who know the symbol get a jump on marking their cards, while others have time to search the periodic table or a reference sheet. On the <em>next</em> call, the previous element turns white with a red highlight on the board.</p>
+          <p>When you click <strong>Call</strong> (or press <kbd>Space</kbd>), the element <em>name</em> appears in the current call banner, but the periodic table cell <strong>is not shaded yet</strong>. Students who know the symbol get a jump on marking their cards, while others have time to search the periodic table or a reference sheet. On the <em>next</em> call, the previous element turns white (dimmed) with a red highlight on the board (configurable in Settings).</p>
         </div>
         <div class="instruction-section">
           <h4>Keyboard Shortcuts</h4>
@@ -616,6 +640,39 @@
       </div>
       <button id="closeInstructionsBtn" class="modal-confirm-btn" style="margin-top: 15px;">
         Got It
+      </button>
+    </div>
+  </div>
+
+  <!-- Settings Modal Structure -->
+  <div id="settingsModal" class="reset-modal-overlay hidden">
+    <div class="reset-modal-content settings-modal-content">
+      <button class="modal-close" id="settingsClose">&times;</button>
+      <h2 class="text-xl font-bold text-gray-900 mb-2">Display Settings</h2>
+      <div class="settings-modal-body">
+        <div class="setting-modal-row">
+          <div class="setting-modal-text">
+            <div class="setting-modal-title">Element Symbols in Called Elements Table</div>
+            <div class="setting-modal-desc">Display element symbols beside element names in the "Called Elements" table (e.g. <code>H • Hydrogen</code> vs <code>Hydrogen</code>).</div>
+          </div>
+          <label class="switch">
+            <input type="checkbox" id="modalSettingSymbols" checked>
+            <span class="slider round"></span>
+          </label>
+        </div>
+        <div class="setting-modal-row">
+          <div class="setting-modal-text">
+            <div class="setting-modal-title">Red Outline on Last Called Element</div>
+            <div class="setting-modal-desc">Display an extra red outline around the most recently called element on the periodic table. When turned off, it appears with a standard black outline like other called elements.</div>
+          </div>
+          <label class="switch">
+            <input type="checkbox" id="modalSettingRedOutline" checked>
+            <span class="slider round"></span>
+          </label>
+        </div>
+      </div>
+      <button id="closeSettingsBtn" class="modal-confirm-btn" style="margin-top: 15px;">
+        Save & Close
       </button>
     </div>
   </div>

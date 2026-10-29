@@ -206,6 +206,127 @@ function getSymbolsForSet(set) {
   return atomicNumbers.map(num => elementDetails[num].symbol);
 }
 
+// --- Settings Management ---
+const SETTINGS_STORAGE_KEY = 'elementBingo_settings';
+let appSettings = {
+  showSymbols: true,
+  redOutline: true
+};
+
+function formatCalledElement(atomicNumber) {
+  const elem = elementDetails[atomicNumber];
+  if (!elem) return '';
+  return appSettings.showSymbols ? `${elem.symbol} • ${elem.name}` : elem.name;
+}
+
+function updateCalledListDisplay() {
+  const calledList = document.getElementById('calledList');
+  if (!calledList) return;
+  calledList.querySelectorAll('li').forEach(li => {
+    const atomic = li.dataset.atomic;
+    if (atomic) {
+      li.textContent = formatCalledElement(atomic);
+    }
+  });
+  if (typeof checkOverflow === 'function') checkOverflow();
+}
+
+function applySettings() {
+  // Sync checkboxes
+  const drawerSymbols = document.getElementById('drawerSettingSymbols');
+  const modalSymbols = document.getElementById('modalSettingSymbols');
+  const drawerRedOutline = document.getElementById('drawerSettingRedOutline');
+  const modalRedOutline = document.getElementById('modalSettingRedOutline');
+
+  if (drawerSymbols) drawerSymbols.checked = appSettings.showSymbols;
+  if (modalSymbols) modalSymbols.checked = appSettings.showSymbols;
+  if (drawerRedOutline) drawerRedOutline.checked = appSettings.redOutline;
+  if (modalRedOutline) modalRedOutline.checked = appSettings.redOutline;
+
+  // Apply red outline state to body
+  if (appSettings.redOutline) {
+    document.body.classList.remove('no-red-outline');
+  } else {
+    document.body.classList.add('no-red-outline');
+  }
+
+  // Update called elements list formatting
+  updateCalledListDisplay();
+}
+
+function saveSettings() {
+  try {
+    localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(appSettings));
+  } catch (e) {
+    console.warn("Could not save settings to localStorage:", e);
+  }
+}
+
+function loadSettings() {
+  try {
+    const saved = localStorage.getItem(SETTINGS_STORAGE_KEY);
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      if (typeof parsed.showSymbols === 'boolean') appSettings.showSymbols = parsed.showSymbols;
+      if (typeof parsed.redOutline === 'boolean') appSettings.redOutline = parsed.redOutline;
+    }
+  } catch (e) {
+    console.warn("Could not load settings from localStorage:", e);
+  }
+  applySettings();
+}
+
+function updateSetting(key, value) {
+  appSettings[key] = value;
+  saveSettings();
+  applySettings();
+}
+
+function setupSettingsListeners() {
+  const settingsModal = document.getElementById('settingsModal');
+  const showSettingsBtn = document.getElementById('showSettingsBtn');
+  const settingsClose = document.getElementById('settingsClose');
+  const closeSettingsBtn = document.getElementById('closeSettingsBtn');
+
+  function openSettings() {
+    if (settingsModal) settingsModal.classList.remove('hidden');
+    hideMenu();
+  }
+
+  function closeSettings() {
+    if (settingsModal) settingsModal.classList.add('hidden');
+  }
+
+  if (showSettingsBtn) showSettingsBtn.addEventListener('click', openSettings);
+  if (settingsClose) settingsClose.addEventListener('click', closeSettings);
+  if (closeSettingsBtn) closeSettingsBtn.addEventListener('click', closeSettings);
+
+  if (settingsModal) {
+    settingsModal.addEventListener('click', (e) => {
+      if (e.target === settingsModal) closeSettings();
+    });
+  }
+
+  // Toggle listeners for drawer and modal
+  const drawerSymbols = document.getElementById('drawerSettingSymbols');
+  const modalSymbols = document.getElementById('modalSettingSymbols');
+  const drawerRedOutline = document.getElementById('drawerSettingRedOutline');
+  const modalRedOutline = document.getElementById('modalSettingRedOutline');
+
+  if (drawerSymbols) {
+    drawerSymbols.addEventListener('change', (e) => updateSetting('showSymbols', e.target.checked));
+  }
+  if (modalSymbols) {
+    modalSymbols.addEventListener('change', (e) => updateSetting('showSymbols', e.target.checked));
+  }
+  if (drawerRedOutline) {
+    drawerRedOutline.addEventListener('change', (e) => updateSetting('redOutline', e.target.checked));
+  }
+  if (modalRedOutline) {
+    modalRedOutline.addEventListener('change', (e) => updateSetting('redOutline', e.target.checked));
+  }
+}
+
 // --- Element Bingo Caller Script ---
 // Simple function to determine approximate electron shell configuration.
 function getElectronShells(Z) {
@@ -621,7 +742,8 @@ function setupBingoCallerListeners() {
 
         // Add to the called list
         const li = document.createElement('li');
-        li.textContent = `${elementDetails[currentElement].symbol} • ${elementDetails[currentElement].name}`;
+        li.dataset.atomic = currentElement;
+        li.textContent = formatCalledElement(currentElement);
         li.title = `${elementDetails[currentElement].name} (Atomic #${currentElement})`;
 
         // Remove 'last-called' from all existing list items
@@ -678,6 +800,8 @@ function setupBingoCallerListeners() {
     }
 
     if (e.key === 'Escape' || e.key === 'Esc') {
+      const settingsModal = document.getElementById('settingsModal');
+      if (settingsModal) settingsModal.classList.add('hidden');
       if (instructionsModal) instructionsModal.classList.add('hidden');
       if (resetConfirmationModal) resetConfirmationModal.classList.add('hidden');
       if (probInfoModal) probInfoModal.classList.add('hidden');
@@ -1215,6 +1339,10 @@ document.addEventListener('DOMContentLoaded', function () {
   // });
   showCallerBtn.addEventListener('click', () => showPage('bingoCaller'));
   showGeneratorBtn.addEventListener('click', () => showPage('cardGenerator'));
+
+  // Initialize settings
+  loadSettings();
+  setupSettingsListeners();
 
   // Initialize the Bingo Caller page and its listeners
   initBingoCaller();
