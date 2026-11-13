@@ -54,6 +54,26 @@
             <span class="slider round"></span>
           </label>
         </div>
+        <div class="menu-setting-item">
+          <label class="setting-toggle-label" for="drawerSettingBohrMode">
+            <span class="setting-title">Bohr-Rutherford Mode</span>
+            <span class="setting-subtitle">call with electron diagrams</span>
+          </label>
+          <label class="switch">
+            <input type="checkbox" id="drawerSettingBohrMode">
+            <span class="slider round"></span>
+          </label>
+        </div>
+        <div class="menu-setting-item menu-setting-subitem" id="drawerBohrStyleRow">
+          <label class="setting-toggle-label" for="drawerSettingBohrStyle">
+            <span class="setting-title">Diagram Style</span>
+            <span class="setting-subtitle">Full shells or semi-circle arcs</span>
+          </label>
+          <select id="drawerSettingBohrStyle" class="menu-select menu-select-compact">
+            <option value="full">Full Shells</option>
+            <option value="arcs">Shell Arcs</option>
+          </select>
+        </div>
       </div>
     </div>
   </div>
@@ -483,6 +503,31 @@
             </tr>
           </table>
         </div>
+
+        <!-- Bohr-Rutherford Call Panel (non-modal so table & Called Elements stay visible) -->
+        <dialog id="bohrCallDialog" class="bohr-call-dialog" aria-labelledby="bohrCallTitle">
+          <div class="bohr-call-header">
+            <div class="bohr-call-title-group">
+              <span class="bohr-call-badge">CURRENT CALL</span>
+              <h2 id="bohrCallTitle">Identify This Element</h2>
+            </div>
+            <div class="bohr-call-header-actions">
+              <div class="bohr-style-toggle" role="group" aria-label="Diagram style">
+                <button type="button" class="bohr-style-btn active" data-bohr-style="full">Full Shells</button>
+                <button type="button" class="bohr-style-btn" data-bohr-style="arcs">Shell Arcs</button>
+              </div>
+              <button type="button" class="bohr-call-close" id="bohrCallClose" aria-label="Close diagram">&times;</button>
+            </div>
+          </div>
+          <div class="bohr-call-body">
+            <div id="bohrCallSvgContainer" class="bohr-call-svg-container"></div>
+            <div id="bohrRevealBanner" class="bohr-reveal-banner hidden" aria-live="polite"></div>
+          </div>
+          <div class="bohr-call-footer">
+            <button type="button" id="bohrRevealBtn" class="bohr-btn bohr-btn-secondary">Reveal Element</button>
+            <button type="button" id="bohrNextCallBtn" class="bohr-btn bohr-btn-primary">Next Call</button>
+          </div>
+        </dialog>
       </div>
 
       <div class="sidebar" id="sidebar">
@@ -669,6 +714,26 @@
             <input type="checkbox" id="modalSettingRedOutline" checked>
             <span class="slider round"></span>
           </label>
+        </div>
+        <div class="setting-modal-row">
+          <div class="setting-modal-text">
+            <div class="setting-modal-title">Bohr-Rutherford Call Mode</div>
+            <div class="setting-modal-desc">Instead of calling the element name, pop up a simplified Bohr-Rutherford electron configuration diagram over the periodic table.</div>
+          </div>
+          <label class="switch">
+            <input type="checkbox" id="modalSettingBohrMode">
+            <span class="slider round"></span>
+          </label>
+        </div>
+        <div class="setting-modal-row" id="modalBohrStyleRow">
+          <div class="setting-modal-text">
+            <div class="setting-modal-title">Bohr-Rutherford Diagram Style</div>
+            <div class="setting-modal-desc">Choose between <strong>Full Shells</strong> (concentric circles with <code>n = 1</code>, <code>n = 2</code> and electron dots) or <strong>Shell Arcs</strong> (semi-circles with electron counts per shell).</div>
+          </div>
+          <select id="modalSettingBohrStyle" class="menu-select menu-select-compact">
+            <option value="full">Full Shells</option>
+            <option value="arcs">Shell Arcs</option>
+          </select>
         </div>
       </div>
       <button id="closeSettingsBtn" class="modal-confirm-btn" style="margin-top: 15px;">

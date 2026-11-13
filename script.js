@@ -210,7 +210,9 @@ function getSymbolsForSet(set) {
 const SETTINGS_STORAGE_KEY = 'elementBingo_settings';
 let appSettings = {
   showSymbols: true,
-  redOutline: true
+  redOutline: true,
+  bohrCallMode: false,
+  bohrStyle: 'full'
 };
 
 function formatCalledElement(atomicNumber) {
@@ -232,22 +234,58 @@ function updateCalledListDisplay() {
 }
 
 function applySettings() {
-  // Sync checkboxes
+  // Sync checkboxes & selects
   const drawerSymbols = document.getElementById('drawerSettingSymbols');
   const modalSymbols = document.getElementById('modalSettingSymbols');
   const drawerRedOutline = document.getElementById('drawerSettingRedOutline');
   const modalRedOutline = document.getElementById('modalSettingRedOutline');
+  const drawerBohrMode = document.getElementById('drawerSettingBohrMode');
+  const modalBohrMode = document.getElementById('modalSettingBohrMode');
+  const drawerBohrStyle = document.getElementById('drawerSettingBohrStyle');
+  const modalBohrStyle = document.getElementById('modalSettingBohrStyle');
+  const drawerBohrStyleRow = document.getElementById('drawerBohrStyleRow');
+  const modalBohrStyleRow = document.getElementById('modalBohrStyleRow');
 
   if (drawerSymbols) drawerSymbols.checked = appSettings.showSymbols;
   if (modalSymbols) modalSymbols.checked = appSettings.showSymbols;
   if (drawerRedOutline) drawerRedOutline.checked = appSettings.redOutline;
   if (modalRedOutline) modalRedOutline.checked = appSettings.redOutline;
+  if (drawerBohrMode) drawerBohrMode.checked = appSettings.bohrCallMode;
+  if (modalBohrMode) modalBohrMode.checked = appSettings.bohrCallMode;
+  if (drawerBohrStyle) drawerBohrStyle.value = appSettings.bohrStyle;
+  if (modalBohrStyle) modalBohrStyle.value = appSettings.bohrStyle;
+
+  if (drawerBohrStyleRow) drawerBohrStyleRow.classList.toggle('is-disabled', !appSettings.bohrCallMode);
+  if (modalBohrStyleRow) modalBohrStyleRow.classList.toggle('is-disabled', !appSettings.bohrCallMode);
+
+  // Sync style toggle buttons inside Bohr Call Dialog
+  document.querySelectorAll('.bohr-style-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.bohrStyle === appSettings.bohrStyle);
+  });
 
   // Apply red outline state to body
   if (appSettings.redOutline) {
     document.body.classList.remove('no-red-outline');
   } else {
     document.body.classList.add('no-red-outline');
+  }
+
+  // Refresh current call banner & open Bohr dialog if an element is active
+  if (typeof currentElement !== 'undefined' && currentElement !== null) {
+    const currentElementDisplay = document.getElementById('currentElementDisplay');
+    const bohrCallDialog = document.getElementById('bohrCallDialog');
+    if (currentElementDisplay) {
+      if (appSettings.bohrCallMode) {
+        currentElementDisplay.textContent = 'View Bohr-Rutherford Diagram';
+        currentElementDisplay.classList.add('bohr-active-banner');
+      } else {
+        currentElementDisplay.textContent = elementDetails[currentElement].name;
+        currentElementDisplay.classList.remove('bohr-active-banner');
+      }
+    }
+    if (bohrCallDialog && bohrCallDialog.open) {
+      renderBohrCallSvg(currentElement);
+    }
   }
 
   // Update called elements list formatting
@@ -269,6 +307,8 @@ function loadSettings() {
       const parsed = JSON.parse(saved);
       if (typeof parsed.showSymbols === 'boolean') appSettings.showSymbols = parsed.showSymbols;
       if (typeof parsed.redOutline === 'boolean') appSettings.redOutline = parsed.redOutline;
+      if (typeof parsed.bohrCallMode === 'boolean') appSettings.bohrCallMode = parsed.bohrCallMode;
+      if (parsed.bohrStyle === 'full' || parsed.bohrStyle === 'arcs') appSettings.bohrStyle = parsed.bohrStyle;
     }
   } catch (e) {
     console.warn("Could not load settings from localStorage:", e);
@@ -325,24 +365,218 @@ function setupSettingsListeners() {
   if (modalRedOutline) {
     modalRedOutline.addEventListener('change', (e) => updateSetting('redOutline', e.target.checked));
   }
+
+  const drawerBohrMode = document.getElementById('drawerSettingBohrMode');
+  const modalBohrMode = document.getElementById('modalSettingBohrMode');
+  const drawerBohrStyle = document.getElementById('drawerSettingBohrStyle');
+  const modalBohrStyle = document.getElementById('modalSettingBohrStyle');
+
+  if (drawerBohrMode) {
+    drawerBohrMode.addEventListener('change', (e) => updateSetting('bohrCallMode', e.target.checked));
+  }
+  if (modalBohrMode) {
+    modalBohrMode.addEventListener('change', (e) => updateSetting('bohrCallMode', e.target.checked));
+  }
+  if (drawerBohrStyle) {
+    drawerBohrStyle.addEventListener('change', (e) => updateSetting('bohrStyle', e.target.value));
+  }
+  if (modalBohrStyle) {
+    modalBohrStyle.addEventListener('change', (e) => updateSetting('bohrStyle', e.target.value));
+  }
 }
 
 // --- Element Bingo Caller Script ---
-// Simple function to determine approximate electron shell configuration.
+// Ground-state electron shell configuration (accurate for elements 1-118).
+const ELECTRON_SHELL_EXCEPTIONS = {
+  24: [2, 8, 13, 1],
+  29: [2, 8, 18, 1],
+  41: [2, 8, 18, 12, 1],
+  42: [2, 8, 18, 13, 1],
+  44: [2, 8, 18, 15, 1],
+  45: [2, 8, 18, 16, 1],
+  46: [2, 8, 18, 18],
+  47: [2, 8, 18, 18, 1],
+  57: [2, 8, 18, 18, 9, 2],
+  58: [2, 8, 18, 19, 9, 2],
+  64: [2, 8, 18, 25, 9, 2],
+  78: [2, 8, 18, 32, 17, 1],
+  79: [2, 8, 18, 32, 18, 1],
+  89: [2, 8, 18, 32, 18, 9, 2],
+  90: [2, 8, 18, 32, 18, 10, 2],
+  91: [2, 8, 18, 32, 20, 9, 2],
+  92: [2, 8, 18, 32, 21, 9, 2],
+  93: [2, 8, 18, 32, 22, 9, 2],
+  96: [2, 8, 18, 32, 25, 9, 2],
+  103: [2, 8, 18, 32, 32, 8, 3]
+};
+
+const AUFBAU_SUBSHELLS = [
+  [1, 2], [2, 2], [2, 6], [3, 2], [3, 6], [4, 2],
+  [3, 10], [4, 6], [5, 2], [4, 10], [5, 6], [6, 2],
+  [4, 14], [5, 10], [6, 6], [7, 2], [5, 14], [6, 10], [7, 6]
+];
+
 function getElectronShells(Z) {
-  let shells = [];
-  const capacities = [2, 8, 18, 32, 18, 8]; // simplified capacities
-  for (let cap of capacities) {
-    if (Z > cap) {
-      shells.push(cap);
-      Z -= cap;
-    } else {
-      shells.push(Z);
-      Z = 0;
-      break;
-    }
+  const num = Number(Z);
+  if (ELECTRON_SHELL_EXCEPTIONS[num]) {
+    return ELECTRON_SHELL_EXCEPTIONS[num].slice();
   }
-  return shells;
+  const shells = [];
+  let remaining = num;
+  for (const [n, cap] of AUFBAU_SUBSHELLS) {
+    if (remaining <= 0) break;
+    const take = Math.min(remaining, cap);
+    shells[n - 1] = (shells[n - 1] || 0) + take;
+    remaining -= take;
+  }
+  return shells.filter(count => count > 0);
+}
+
+function createFullBohrSvg(atomicNumber) {
+  const shells = getElectronShells(atomicNumber);
+  const count = shells.length;
+  const size = 340;
+  const cx = size / 2;
+  const cy = size / 2;
+  const nucleusR = count >= 6 ? 24 : count >= 4 ? 28 : 34;
+  const firstShellR = nucleusR + (count >= 6 ? 19 : 26);
+  const maxR = 148;
+  const step = count > 1 ? Math.min(34, (maxR - firstShellR) / (count - 1)) : 0;
+  const electronR = count >= 6 ? 3.5 : 4.5;
+  const labelFontSize = count >= 5 ? 10 : 11.5;
+
+  let circlesHtml = '';
+  let labelsHtml = '';
+  let electronsHtml = '';
+
+  shells.forEach((electrons, idx) => {
+    const r = firstShellR + idx * step;
+    circlesHtml += `<circle cx="${cx}" cy="${cy}" r="${r.toFixed(1)}" fill="none" stroke="#222" stroke-width="1.5"/>`;
+
+    // Shell label along bottom-left 135 deg diagonal (matches reference SVG)
+    const lx = cx - r * Math.SQRT1_2;
+    const ly = cy + r * Math.SQRT1_2;
+    const boxW = count >= 5 ? 31 : 36;
+    const boxH = count >= 5 ? 13 : 15;
+    labelsHtml += `<rect x="${(lx - boxW / 2).toFixed(1)}" y="${(ly - boxH / 2).toFixed(1)}" width="${boxW}" height="${boxH}" rx="3" fill="#fff"/>`;
+    labelsHtml += `<text x="${lx.toFixed(1)}" y="${ly.toFixed(1)}" text-anchor="middle" dominant-baseline="central" fill="#111" font-size="${labelFontSize}" font-family="Arial, Helvetica, sans-serif">n = ${idx + 1}</text>`;
+
+    // Electron dots
+    if (idx === 0 && electrons <= 2) {
+      if (electrons === 1) {
+        electronsHtml += `<circle cx="${cx}" cy="${(cy - r).toFixed(1)}" r="${electronR}" fill="#3a78d6" stroke="#222" stroke-width="1"/>`;
+      } else if (electrons === 2) {
+        const dx = 6.2;
+        const dy = Math.sqrt(Math.max(0, r * r - dx * dx));
+        electronsHtml += `<circle cx="${(cx - dx).toFixed(2)}" cy="${(cy - dy).toFixed(2)}" r="${electronR}" fill="#3a78d6" stroke="#222" stroke-width="1"/>`;
+        electronsHtml += `<circle cx="${(cx + dx).toFixed(2)}" cy="${(cy - dy).toFixed(2)}" r="${electronR}" fill="#3a78d6" stroke="#222" stroke-width="1"/>`;
+      }
+    } else if (electrons <= 8) {
+      const cardinalAngles = [-Math.PI / 2, 0, Math.PI / 2, Math.PI];
+      const pairOffset = Math.min(0.14, 6.2 / r);
+      for (let e = 0; e < electrons; e++) {
+        const slot = e % 4;
+        const baseAngle = cardinalAngles[slot];
+        const isPairedSlot = electrons > slot + 4;
+        let angle = baseAngle;
+        if (isPairedSlot) {
+          angle = e < 4 ? baseAngle - pairOffset : baseAngle + pairOffset;
+        }
+        const ex = cx + r * Math.cos(angle);
+        const ey = cy + r * Math.sin(angle);
+        electronsHtml += `<circle cx="${ex.toFixed(2)}" cy="${ey.toFixed(2)}" r="${electronR}" fill="#3a78d6" stroke="#222" stroke-width="1"/>`;
+      }
+    } else {
+      for (let e = 0; e < electrons; e++) {
+        const angle = -Math.PI / 2 + (e * 2 * Math.PI) / electrons;
+        const ex = cx + r * Math.cos(angle);
+        const ey = cy + r * Math.sin(angle);
+        electronsHtml += `<circle cx="${ex.toFixed(2)}" cy="${ey.toFixed(2)}" r="${electronR}" fill="#3a78d6" stroke="#222" stroke-width="1"/>`;
+      }
+    }
+  });
+
+  const ariaLabel = `Simplified Bohr-Rutherford diagram with ${count} shells holding ${shells.join(', ')} electrons`;
+  return `<svg xmlns="http://www.w3.org/2000/svg" role="img" viewBox="0 0 ${size} ${size}" width="460" height="460" aria-label="${ariaLabel}">
+    <rect width="${size}" height="${size}" fill="#ffffff"/>
+    ${circlesHtml}
+    ${labelsHtml}
+    <circle cx="${cx}" cy="${cy}" r="${nucleusR}" fill="#ececec" stroke="#222" stroke-width="1.5"/>
+    ${electronsHtml}
+  </svg>`;
+}
+
+function createArcsBohrSvg(atomicNumber) {
+  const shells = getElectronShells(atomicNumber);
+  const count = shells.length;
+  const width = 360;
+  const height = 258;
+  const midY = 136;
+  const R = 165;
+  const topStart = -40 * (Math.PI / 180);
+  const topEnd = -10.5 * (Math.PI / 180);
+  const botStart = 10.5 * (Math.PI / 180);
+  const botEnd = 40 * (Math.PI / 180);
+
+  const dx = count <= 3 ? 58 : count === 4 ? 48 : count === 5 ? 42 : 36;
+  const totalArcSpan = (count - 1) * dx;
+  const curveDepth = R * (1 - Math.cos(topStart));
+  const startX = (width - totalArcSpan + curveDepth) / 2;
+  const shellFontSize = count >= 6 ? 11 : 12.5;
+
+  let arcsHtml = '';
+  shells.forEach((electrons, idx) => {
+    const midX = startX + idx * dx;
+    const arcCx = midX - R;
+
+    const x1 = arcCx + R * Math.cos(topStart);
+    const y1 = midY + R * Math.sin(topStart);
+    const x2 = arcCx + R * Math.cos(topEnd);
+    const y2 = midY + R * Math.sin(topEnd);
+
+    const x3 = arcCx + R * Math.cos(botStart);
+    const y3 = midY + R * Math.sin(botStart);
+    const x4 = arcCx + R * Math.cos(botEnd);
+    const y4 = midY + R * Math.sin(botEnd);
+
+    arcsHtml += `<text x="${x1.toFixed(1)}" y="${(y1 - 14).toFixed(1)}" text-anchor="middle" dominant-baseline="central" fill="#64748b" font-size="${shellFontSize}" font-weight="600" font-family="Arial, Helvetica, sans-serif">n=${idx + 1}</text>`;
+    arcsHtml += `<path d="M ${x1.toFixed(1)} ${y1.toFixed(1)} A ${R} ${R} 0 0 1 ${x2.toFixed(1)} ${y2.toFixed(1)}" fill="none" stroke="#1e293b" stroke-width="3" stroke-linecap="round"/>`;
+    arcsHtml += `<path d="M ${x3.toFixed(1)} ${y3.toFixed(1)} A ${R} ${R} 0 0 1 ${x4.toFixed(1)} ${y4.toFixed(1)}" fill="none" stroke="#1e293b" stroke-width="3" stroke-linecap="round"/>`;
+    arcsHtml += `<text x="${midX.toFixed(1)}" y="${midY}" text-anchor="middle" dominant-baseline="central" fill="#0f172a" font-size="${count >= 6 ? 22 : 26}" font-weight="700" font-family="Arial, Helvetica, sans-serif">${electrons}</text>`;
+  });
+
+  const ariaLabel = `Shell arc electron configuration with ${count} shells holding ${shells.join(', ')} electrons`;
+  return `<svg xmlns="http://www.w3.org/2000/svg" role="img" viewBox="0 0 ${width} ${height}" width="460" height="330" aria-label="${ariaLabel}">
+    <rect width="${width}" height="${height}" fill="#ffffff"/>
+    ${arcsHtml}
+  </svg>`;
+}
+
+function renderBohrCallSvg(atomicNumber) {
+  const container = document.getElementById('bohrCallSvgContainer');
+  if (!container || atomicNumber == null) return;
+  container.innerHTML = appSettings.bohrStyle === 'arcs'
+    ? createArcsBohrSvg(atomicNumber)
+    : createFullBohrSvg(atomicNumber);
+}
+
+function openBohrCallModal(atomicNumber) {
+  const dialog = document.getElementById('bohrCallDialog');
+  const revealBanner = document.getElementById('bohrRevealBanner');
+  const revealBtn = document.getElementById('bohrRevealBtn');
+  if (!dialog || atomicNumber == null) return;
+
+  renderBohrCallSvg(atomicNumber);
+  if (revealBanner) {
+    revealBanner.classList.add('hidden');
+    revealBanner.textContent = '';
+  }
+  if (revealBtn) {
+    revealBtn.textContent = 'Reveal Element';
+  }
+  if (!dialog.open) {
+    dialog.show();
+  }
 }
 function createBohrDiagram(atomicNumber) {
   const shells = getElectronShells(Number(atomicNumber));
@@ -562,7 +796,9 @@ function initBingoCaller() {
   }
   currentElement = null;
   currentElementDisplay.textContent = 'Ready to Play';
-  currentElementDisplay.classList.remove('game-over');
+  currentElementDisplay.classList.remove('game-over', 'bohr-active-banner');
+  const bohrCallDialog = document.getElementById('bohrCallDialog');
+  if (bohrCallDialog && bohrCallDialog.open) bohrCallDialog.close();
 
   // Update header display if it exists (for the "Ready to Play" header box)
 
@@ -762,17 +998,27 @@ function setupBingoCallerListeners() {
 
     if (atomicNumber !== null) {
       const element = elementDetails[atomicNumber];
-      currentElementDisplay.textContent = element.name;
+      if (appSettings.bohrCallMode) {
+        currentElementDisplay.textContent = 'View Bohr-Rutherford Diagram';
+        currentElementDisplay.classList.add('bohr-active-banner');
+        openBohrCallModal(atomicNumber);
+      } else {
+        currentElementDisplay.textContent = element.name;
+        currentElementDisplay.classList.remove('bohr-active-banner');
+      }
 
       startTimer(); // Start/Restart timer on each call
     } else {
       currentElementDisplay.textContent = 'Game Over';
+      currentElementDisplay.classList.remove('bohr-active-banner');
       currentElementDisplay.classList.add('game-over');
+      const bohrCallDialog = document.getElementById('bohrCallDialog');
+      if (bohrCallDialog && bohrCallDialog.open) bohrCallDialog.close();
       stopTimer(); // Stop timer if no more elements
     }
   }
 
-  callButton.addEventListener('click', function () {
+  function triggerNextRandomCall() {
     if (remainingElements.length === 0) {
       if (currentElement !== null) {
         handleCall(null);
@@ -787,7 +1033,55 @@ function setupBingoCallerListeners() {
     const nextAtomic = remainingElements.splice(randomIndex, 1)[0];
     keyBuffer = ""; // Clear secret buffer on manual call
     handleCall(nextAtomic);
+  }
+
+  callButton.addEventListener('click', triggerNextRandomCall);
+
+  // Wire up Bohr-Rutherford Call Dialog & banner re-open
+  const bohrCallDialog = document.getElementById('bohrCallDialog');
+  const bohrCallClose = document.getElementById('bohrCallClose');
+  const bohrRevealBtn = document.getElementById('bohrRevealBtn');
+  const bohrNextCallBtn = document.getElementById('bohrNextCallBtn');
+  const bohrRevealBanner = document.getElementById('bohrRevealBanner');
+  const currentElementDisplayEl = document.getElementById('currentElementDisplay');
+
+  if (bohrCallClose && bohrCallDialog) {
+    bohrCallClose.addEventListener('click', () => bohrCallDialog.close());
+  }
+  if (bohrNextCallBtn) {
+    bohrNextCallBtn.addEventListener('click', triggerNextRandomCall);
+  }
+  if (bohrRevealBtn && bohrRevealBanner) {
+    bohrRevealBtn.addEventListener('click', () => {
+      if (currentElement === null) return;
+      const isHidden = bohrRevealBanner.classList.contains('hidden');
+      if (isHidden) {
+        const el = elementDetails[currentElement];
+        bohrRevealBanner.textContent = `${el.name} (${el.symbol}) — Atomic #${el.atomicNumber}`;
+        bohrRevealBanner.classList.remove('hidden');
+        bohrRevealBtn.textContent = 'Hide Name';
+      } else {
+        bohrRevealBanner.classList.add('hidden');
+        bohrRevealBanner.textContent = '';
+        bohrRevealBtn.textContent = 'Reveal Element';
+      }
+    });
+  }
+  document.querySelectorAll('.bohr-style-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const style = btn.dataset.bohrStyle;
+      if (style === 'full' || style === 'arcs') {
+        updateSetting('bohrStyle', style);
+      }
+    });
   });
+  if (currentElementDisplayEl) {
+    currentElementDisplayEl.addEventListener('click', () => {
+      if (appSettings.bohrCallMode && currentElement !== null) {
+        openBohrCallModal(currentElement);
+      }
+    });
+  }
 
   // --- Secret Keyboard Shortcuts ---
   document.addEventListener('keydown', function (e) {
@@ -805,6 +1099,7 @@ function setupBingoCallerListeners() {
       if (instructionsModal) instructionsModal.classList.add('hidden');
       if (resetConfirmationModal) resetConfirmationModal.classList.add('hidden');
       if (probInfoModal) probInfoModal.classList.add('hidden');
+      if (bohrCallDialog && bohrCallDialog.open) bohrCallDialog.close();
       hideElementDetailsModal();
       hideMenu();
       return;
